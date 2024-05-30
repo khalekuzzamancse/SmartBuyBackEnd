@@ -16,6 +16,10 @@ repositories {
 }
 
 dependencies {
+
+    //for getter ,setter,//
+    compileOnly("org.projectlombok:lombok:1.18.30")
+    annotationProcessor("org.projectlombok:lombok:1.18.30")
     // https://mvnrepository.com/artifact/mysql/mysql-connector-java
     implementation("mysql:mysql-connector-java:8.0.33")
 

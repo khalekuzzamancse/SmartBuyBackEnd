@@ -7,8 +7,6 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 public class ReturnRequest {
-    private String userId;
-    private String productId;
-    private int purchasedQuantity;
+    private String purchaseId;
     private int returnQuantity;
 }

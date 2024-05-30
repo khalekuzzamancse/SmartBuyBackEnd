@@ -84,7 +84,7 @@ public class PurchaseController {
             //return list of purchase id
             return purchaseIds;
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
             return Collections.emptyList();
         }
     }
@@ -92,16 +92,31 @@ public class PurchaseController {
     @PostMapping("/return")
     @ResponseStatus(HttpStatus.CREATED) // response code for success
     public boolean returnItem(@RequestBody ReturnRequest request) {
-//        request.getProductId();
-//        //TODO:purchased: 10 , returned=2 :
-//        //TODO:
-//
-//        request.getItems().forEach(item -> {
-//            //TODO:Find the offer is available or not
-//            inventoryRepository.addQuantity(item.getProductId(), item.getQuantity());
-//
-//        });
-        return true;
+        try {
+            var purchasedProduct = purchasedProductRepository.findById(request.getPurchaseId()).orElse(null);
+            assert purchasedProduct != null;
+            var productId = purchasedProduct.getProductId();
+            inventoryRepository.addQuantity(productId, request.getReturnQuantity());
+            var discountId = purchasedProduct.getDiscountId();
+            var wasDiscount = discountId != null;
+            if (wasDiscount) {
+                var itemAfterReturn = purchasedProduct.getQuantity() - request.getReturnQuantity();
+                var discount = discountByProductRepository.findById(discountId).orElse(null);
+                assert discount != null;
+                var noMoreEligibleForDiscount = itemAfterReturn < discount.getRequiredParentQuantity();
+                if (noMoreEligibleForDiscount) {
+                    var offeredProductId = discount.getChildId();
+                    var offeredProductAmount = discount.getFreeChildQuantity();
+                    inventoryRepository.addQuantity(offeredProductId, offeredProductAmount);
+                }
+
+            }
+            return  true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return  false;
+        }
+
     }
 
 

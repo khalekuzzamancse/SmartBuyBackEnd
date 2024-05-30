@@ -1,4 +1,4 @@
-package com.kzcse.springboot.api.order;
+package com.kzcse.springboot.purchase.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

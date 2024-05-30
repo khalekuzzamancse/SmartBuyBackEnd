@@ -1,7 +1,9 @@
 package com.kzcse.springboot;
 
 import com.kzcse.springboot.enitity.repository.DiscountByProductRepository;
+import com.kzcse.springboot.enitity.repository.InventoryRepository;
 import com.kzcse.springboot.enitity.repository.ProductRepository;
+import com.kzcse.springboot.enitity.souce.DummyInventory;
 import com.kzcse.springboot.enitity.souce.DummyOffer;
 import com.kzcse.springboot.enitity.souce.DummyProductList;
 import org.springframework.boot.SpringApplication;
@@ -15,6 +17,7 @@ public class Application {
 //        var repo = context.getBean(ProductRepository.class);
 //        var result = repo.saveAll(new DummyProductList().productsList);
 //        System.out.println(result);
+//        var repo = context.getBean(InventoryRepository.class);
 //        var result=repo.saveAll(new DummyInventory().inventories);
 //        System.out.println(result);
 //        var repo = context.getBean(DiscountByProductRepository.class);

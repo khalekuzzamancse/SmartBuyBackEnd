@@ -1,11 +1,5 @@
 package com.kzcse.springboot;
 
-import com.kzcse.springboot.enitity.repository.DiscountByProductRepository;
-import com.kzcse.springboot.enitity.repository.InventoryRepository;
-import com.kzcse.springboot.enitity.repository.ProductRepository;
-import com.kzcse.springboot.enitity.souce.DummyInventory;
-import com.kzcse.springboot.enitity.souce.DummyOffer;
-import com.kzcse.springboot.enitity.souce.DummyProductList;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

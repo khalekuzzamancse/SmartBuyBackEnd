@@ -1,6 +1,6 @@
 package com.kzcse.springboot.enitity.souce;
 
-import com.kzcse.springboot.enitity.entity.DiscountByProductEntity;
+import com.kzcse.springboot.discount.data.DiscountByProductEntity;
 
 import java.util.List;
 

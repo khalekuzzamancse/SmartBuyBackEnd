@@ -1,11 +1,10 @@
 package com.kzcse.springboot.purchase.api;
 
-import com.kzcse.springboot.enitity.repository.DiscountByProductRepository;
+import com.kzcse.springboot.discount.data.DiscountByProductRepository;
 import com.kzcse.springboot.purchase.model.OrderRequest;
 import com.kzcse.springboot.purchase.model.OrderResponse;
 import com.kzcse.springboot.purchase.entity.PurchasedProductEntity;
 import com.kzcse.springboot.purchase.model.PurchasedResponse;
-import com.kzcse.springboot.purchase.model.ReturnRequest;
 import com.kzcse.springboot.enitity.repository.InventoryRepository;
 import com.kzcse.springboot.enitity.repository.ProductRepository;
 import com.kzcse.springboot.purchase.repositoy.PurchasedProductRepository;
@@ -84,40 +83,11 @@ public class PurchaseController {
             //return list of purchase id
             return purchaseIds;
         } catch (Exception e) {
-            System.out.println(e);
             return Collections.emptyList();
         }
     }
 
-    @PostMapping("/return")
-    @ResponseStatus(HttpStatus.CREATED) // response code for success
-    public boolean returnItem(@RequestBody ReturnRequest request) {
-        try {
-            var purchasedProduct = purchasedProductRepository.findById(request.getPurchaseId()).orElse(null);
-            assert purchasedProduct != null;
-            var productId = purchasedProduct.getProductId();
-            inventoryRepository.addQuantity(productId, request.getReturnQuantity());
-            var discountId = purchasedProduct.getDiscountId();
-            var wasDiscount = discountId != null;
-            if (wasDiscount) {
-                var itemAfterReturn = purchasedProduct.getQuantity() - request.getReturnQuantity();
-                var discount = discountByProductRepository.findById(discountId).orElse(null);
-                assert discount != null;
-                var noMoreEligibleForDiscount = itemAfterReturn < discount.getRequiredParentQuantity();
-                if (noMoreEligibleForDiscount) {
-                    var offeredProductId = discount.getChildId();
-                    var offeredProductAmount = discount.getFreeChildQuantity();
-                    inventoryRepository.addQuantity(offeredProductId, offeredProductAmount);
-                }
 
-            }
-            return  true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return  false;
-        }
-
-    }
 
 
 }

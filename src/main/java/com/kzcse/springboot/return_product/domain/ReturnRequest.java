@@ -1,4 +1,4 @@
-package com.kzcse.springboot.purchase.model;
+package com.kzcse.springboot.return_product.domain;
 import lombok.*;
 
 @Getter

@@ -93,7 +93,8 @@ public class ProductDetailsModelBuilder {
                         "Iphone 5", // Assuming a product name for the offer
                         "https://d61s2hjse0ytn.cloudfront.net/card_image/None/Nokia_150_2023_Cart.webp", // Assuming a URL for the offer image
                         2, // Required quantity for the offer
-                        1 // Free quantity
+                        1 ,// Free quantity
+                        System.currentTimeMillis()
                 ))
                 .addReview(new ProductReviewResponse(
                         "John Doe",

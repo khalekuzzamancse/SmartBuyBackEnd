@@ -1,4 +1,4 @@
-package com.kzcse.springboot.discount.data;
+package com.kzcse.springboot.discount.data.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

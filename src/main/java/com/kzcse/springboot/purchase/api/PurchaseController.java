@@ -1,6 +1,6 @@
 package com.kzcse.springboot.purchase.api;
 
-import com.kzcse.springboot.discount.data.DiscountByProductRepository;
+import com.kzcse.springboot.discount.data.repository.DiscountByProductRepository;
 import com.kzcse.springboot.purchase.model.OrderRequest;
 import com.kzcse.springboot.purchase.model.OrderResponse;
 import com.kzcse.springboot.purchase.entity.PurchasedProductEntity;

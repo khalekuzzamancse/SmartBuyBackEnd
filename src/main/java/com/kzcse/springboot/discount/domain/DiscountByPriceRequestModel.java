@@ -1,7 +1,5 @@
 package com.kzcse.springboot.discount.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import lombok.*;
 
 /**
@@ -11,7 +9,7 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DiscountByPriceModel {
+public class DiscountByPriceRequestModel {
     private String productId;
     private int amount;
     private Long expirationTimeInMs;

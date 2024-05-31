@@ -16,4 +16,5 @@ public class ProductOfferResponse {
     private String imageLink;
     private int requiredQuantity;
     private int freeQuantity;
+    private Long expirationTimeInMs;
 }

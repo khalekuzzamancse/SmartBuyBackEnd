@@ -1,11 +1,11 @@
 package com.kzcse.springboot.discount.api;
 
-import com.kzcse.springboot.discount.data.DiscountByPriceEntity;
-import com.kzcse.springboot.discount.data.DiscountByPriceRepository;
-import com.kzcse.springboot.discount.data.DiscountByProductEntity;
-import com.kzcse.springboot.discount.data.DiscountByProductRepository;
-import com.kzcse.springboot.discount.domain.DiscountByPriceModel;
-import com.kzcse.springboot.discount.domain.DiscountByProductModel;
+import com.kzcse.springboot.discount.data.entity.DiscountByPriceEntity;
+import com.kzcse.springboot.discount.data.repository.DiscountByPriceRepository;
+import com.kzcse.springboot.discount.data.entity.DiscountByProductEntity;
+import com.kzcse.springboot.discount.data.repository.DiscountByProductRepository;
+import com.kzcse.springboot.discount.domain.DiscountByPriceRequestModel;
+import com.kzcse.springboot.discount.domain.DiscountByProductRequestModel;
 import com.kzcse.springboot.enitity.repository.InventoryRepository;
 import com.kzcse.springboot.purchase.repositoy.PurchasedProductRepository;
 import com.kzcse.springboot.return_product.data.repository.ReturnProductRepository;
@@ -15,8 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.UUID;
-import java.util.function.Function;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api/product/discount")
@@ -37,7 +36,7 @@ public class DiscountController {
 
     @PostMapping("byproduct/add")
     @ResponseStatus(HttpStatus.CREATED) // response code for success
-    public boolean addDiscount(@RequestBody List<DiscountByProductModel> discounts) {
+    public boolean addDiscount(@RequestBody List<DiscountByProductRequestModel> discounts) {
         try {
             var entities = discounts.stream().map(this::toModel).toList();
             System.out.println(entities);
@@ -52,7 +51,7 @@ public class DiscountController {
 
     @PostMapping("by-price/add")
     @ResponseStatus(HttpStatus.CREATED) // response code for success
-    public boolean addDiscountByPrice(@RequestBody List<DiscountByPriceModel> entities) {
+    public boolean addDiscountByPrice(@RequestBody List<DiscountByPriceRequestModel> entities) {
         try {
             discountByPriceRepository.saveAll(entities.stream().map(this::toModelPrice).toList());
             return true;
@@ -62,7 +61,8 @@ public class DiscountController {
         }
 
     }
-    private DiscountByPriceEntity toModelPrice(DiscountByPriceModel model) {
+
+    private DiscountByPriceEntity toModelPrice(DiscountByPriceRequestModel model) {
         var entity = new DiscountByPriceEntity();
         entity.setProductId(model.getProductId());
         entity.setExpirationTimeInMs(model.getExpirationTimeInMs());
@@ -71,13 +71,22 @@ public class DiscountController {
     }
 
 
-    private DiscountByProductEntity toModel(DiscountByProductModel model) {
+    private DiscountByProductEntity toModel(DiscountByProductRequestModel model) {
         return new DiscountByProductEntity(
                 model.getParentId() + model.getChildId(),
                 model.getParentId(),
                 model.getChildId(),
                 model.getRequiredParentQuantity(),
-                model.getFreeChildQuantity());
+                model.getFreeChildQuantity(),
+                getExpireTimeMs(5)
+        );
+    }
+
+    private long getExpireTimeMs(int daysToAdd) {
+        long currentTimeInMs = System.currentTimeMillis();
+        long msInADay = TimeUnit.DAYS.toMillis(1);
+        long addedTimeInMs = daysToAdd * msInADay;
+        return currentTimeInMs + addedTimeInMs;
     }
 
 

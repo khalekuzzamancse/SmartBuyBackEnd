@@ -1,4 +1,4 @@
-package com.kzcse.springboot.discount.data;
+package com.kzcse.springboot.discount.data.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -17,5 +17,6 @@ public class DiscountByProductEntity {
     private String childId;
     private int requiredParentQuantity;
     private int freeChildQuantity;
+    private Long expirationTimeInMs;
 
 }

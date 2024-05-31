@@ -1,5 +1,6 @@
-package com.kzcse.springboot.discount.data;
+package com.kzcse.springboot.discount.data.repository;
 
+import com.kzcse.springboot.discount.data.entity.DiscountByProductEntity;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 

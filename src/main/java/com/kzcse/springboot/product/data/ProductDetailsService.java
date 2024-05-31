@@ -1,8 +1,8 @@
 package com.kzcse.springboot.product.data;
 
-import com.kzcse.springboot.discount.data.DiscountByPriceEntity;
-import com.kzcse.springboot.discount.data.DiscountByPriceRepository;
-import com.kzcse.springboot.discount.data.DiscountByProductRepository;
+import com.kzcse.springboot.discount.data.entity.DiscountByPriceEntity;
+import com.kzcse.springboot.discount.data.repository.DiscountByPriceRepository;
+import com.kzcse.springboot.discount.data.repository.DiscountByProductRepository;
 import com.kzcse.springboot.enitity.repository.ProductRepository;
 import com.kzcse.springboot.product.domain.ProductDetailsResponse;
 import com.kzcse.springboot.product.domain.ProductDetailsModelBuilder;
@@ -43,15 +43,16 @@ public class ProductDetailsService {
         }
         if (offeredProductResponse != null) {
             var offered = offeredProductResponse.stream().map(
-                    offeredProduct -> {
-                        var offeredProductDetailsResponse = productRepository.findById(offeredProduct.getChildId());
+                    offer -> {
+                        var offeredProductDetailsResponse = productRepository.findById(offer.getChildId());
                         if (offeredProductDetailsResponse.isPresent()) {
-                            var offeredP = offeredProductDetailsResponse.get();
+                            var offeredProduct = offeredProductDetailsResponse.get();
                             return new ProductOfferResponse(
-                                    offeredP.getName(),
-                                    offeredP.getImageLink(),
-                                    offeredProduct.getFreeChildQuantity(),
-                                    offeredProduct.getFreeChildQuantity()
+                                    offeredProduct.getName(),
+                                    offeredProduct.getImageLink(),
+                                    offer.getFreeChildQuantity(),
+                                    offer.getFreeChildQuantity(),
+                                    offer.getExpirationTimeInMs()
                             );
                         } else
                             return null;
@@ -74,7 +75,7 @@ public class ProductDetailsService {
 
     }
 
-    public static long getExpireTimeMs(int daysToAdd) {
+    private  long getExpireTimeMs(int daysToAdd) {
         long currentTimeInMs = System.currentTimeMillis();
         long msInADay = TimeUnit.DAYS.toMillis(1);
         long addedTimeInMs = daysToAdd * msInADay;

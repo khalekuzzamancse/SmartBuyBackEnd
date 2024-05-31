@@ -1,9 +1,7 @@
-package com.kzcse.springboot.discount.data;
+package com.kzcse.springboot.discount.data.repository;
 
-import org.springframework.data.jpa.repository.Query;
+import com.kzcse.springboot.discount.data.entity.DiscountByPriceEntity;
 import org.springframework.data.repository.CrudRepository;
-
-import java.util.List;
 
 public interface DiscountByPriceRepository extends CrudRepository<DiscountByPriceEntity, String> {
 

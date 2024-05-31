@@ -1,9 +1,11 @@
 package com.kzcse.springboot.purchase.api;
 
+import com.kzcse.springboot.api.product.Product;
 import com.kzcse.springboot.discount.data.DiscountByProductRepository;
 import com.kzcse.springboot.purchase.model.OrderRequest;
 import com.kzcse.springboot.purchase.model.OrderResponse;
 import com.kzcse.springboot.purchase.entity.PurchasedProductEntity;
+import com.kzcse.springboot.purchase.model.PurchasedProductResponse;
 import com.kzcse.springboot.purchase.model.PurchasedResponse;
 import com.kzcse.springboot.enitity.repository.InventoryRepository;
 import com.kzcse.springboot.enitity.repository.ProductRepository;
@@ -17,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 @RestController
 @RequestMapping("/api/purchase")
@@ -67,7 +70,7 @@ public class PurchaseController {
                 var isSuccess = (purchase.equals(response));
                 if (isSuccess) {
                     inventoryRepository.subtractQuantity(item.getProductId(), item.getQuantity());
-                    purchaseIds.add(new PurchasedResponse(purchaseId, discountId, expireDate));
+                    purchaseIds.add(new PurchasedResponse(purchaseId, discountId, expireDate.toString()));
                     if (discountId != null) {
                         var discount = discountByProductRepository.findById(discountId).orElse(null);
                         if (discount != null) {
@@ -87,7 +90,28 @@ public class PurchaseController {
         }
     }
 
+    //return the purchased product of user
+    @GetMapping("/{userId}")
+    public List<PurchasedProductResponse> getProduct(@PathVariable String userId) {
+        List<PurchasedProductResponse> responses = new java.util.ArrayList<>(List.of());
+        purchasedProductRepository.findByUserId(userId).forEach(purchased -> {
+            var productResponse = productRepository.findById(purchased.getProductId());
+            if (productResponse.isPresent()) {
+                var product = productResponse.get();
+                var response = new PurchasedProductResponse(
+                        purchased.getId(),
+                        product.getName(),
+                        product.getImageLink(),
+                        purchased.getQuantity(),
+                        purchased.getReturnExpireDate().toString()
 
+                );
+                responses.add(response);
+            }
+        });
+
+        return responses;
+    }
 
 
 }

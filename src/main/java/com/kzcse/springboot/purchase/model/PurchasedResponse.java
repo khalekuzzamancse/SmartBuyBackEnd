@@ -14,5 +14,6 @@ public class PurchasedResponse {
     @Id
     private String purchaseId;
     private String discountId;
-    private LocalDate returnExpireDate;
+    //because Local data may not be serializable to client
+    private String returnExpireDate;
 }

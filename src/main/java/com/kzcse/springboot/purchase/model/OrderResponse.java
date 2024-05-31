@@ -14,5 +14,6 @@ public class OrderResponse {
     private String requestId;
     public  OrderResponse(int totalPrice){
         this.totalPrice=totalPrice;
+        this.requestId="randomid";//used so that client does not give a null key
     }
 }

@@ -15,6 +15,6 @@ public class ReturningPendingEntity{
         @Id String id;
         String purchasedProductId;
         String freeProductId;
-        int purchaseQuantity;//amount that wants to back/return
+        int returnQuantity;//amount that wants to back/return
         int freeItemQuantity; //free product that will be back along with main product
 }

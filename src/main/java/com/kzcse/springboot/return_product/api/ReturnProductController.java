@@ -105,7 +105,7 @@ public class ReturnProductController {
         try {
             var entity = returnProductRepository.findById(id).orElse(null);
             if (entity != null) {
-                inventoryRepository.addQuantity(entity.getPurchasedProductId(), entity.getPurchaseQuantity());
+                inventoryRepository.addQuantity(entity.getPurchasedProductId(), entity.getReturnQuantity());
                 if (entity.getFreeProductId() != null) {
                     inventoryRepository.addQuantity(entity.getFreeProductId(), entity.getFreeItemQuantity());
                 }
@@ -119,7 +119,7 @@ public class ReturnProductController {
     }
 
     private ReturningPendingProductModel toModel(ReturningPendingEntity entity) {
-        return new ReturningPendingProductModel(entity.getId(), entity.getFreeProductId(), entity.getPurchaseQuantity(), entity.getFreeItemQuantity());
+        return new ReturningPendingProductModel(entity.getId(), entity.getFreeProductId(), entity.getReturnQuantity(), entity.getFreeItemQuantity());
     }
 
 

@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class Application {
 
     public static void main(String[] args) {
-        var context = SpringApplication.run(Application.class, args);
+       SpringApplication.run(Application.class, args);
 //        var repo = context.getBean(ProductRepository.class);
 //        var result = repo.saveAll(new DummyProductList().productsList);
 //        System.out.println(result);

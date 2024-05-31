@@ -5,8 +5,7 @@ import com.kzcse.springboot.enitity.entity.ProductEntity;
 import com.kzcse.springboot.discount.data.DiscountByProductRepository;
 import com.kzcse.springboot.enitity.repository.ProductRepository;
 import com.kzcse.springboot.product.data.ProductDetailsService;
-import com.kzcse.springboot.product.domain.ProductDetailsModel;
-import com.kzcse.springboot.product.domain.ProductDetailsModelBuilder;
+import com.kzcse.springboot.product.domain.ProductDetailsResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -57,7 +56,7 @@ public class ProductController {
     }
 
     @GetMapping("details/{id}")
-    public ProductDetailsModel getProductDetails(@PathVariable String id) {
+    public ProductDetailsResponse getProductDetails(@PathVariable String id) {
         //return  ProductDetailsModelBuilder.getDemoModel();
         return productDetailsService.fetchDetails(id);
     }

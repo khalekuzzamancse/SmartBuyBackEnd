@@ -13,14 +13,13 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 
-public class ProductDetailsModel {
+public class ProductDetailsResponse {
     private String productId;
     private String name;
     private List<String> imagesLink;
     private String description;
-    private String originalPrice;
-    private String priceDiscount;
-    private String priceOnDiscount;
-    private ProductOfferModel offeredProduct;
-    private List<ProductReviewModel> reviews;
+    private int price;
+    private DiscountByPriceResponse discountByPrice;
+    private ProductOfferResponse discountByProduct;
+    private List<ProductReviewResponse> reviews;
 }

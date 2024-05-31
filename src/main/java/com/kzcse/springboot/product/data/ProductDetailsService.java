@@ -4,13 +4,14 @@ import com.kzcse.springboot.discount.data.DiscountByPriceEntity;
 import com.kzcse.springboot.discount.data.DiscountByPriceRepository;
 import com.kzcse.springboot.discount.data.DiscountByProductRepository;
 import com.kzcse.springboot.enitity.repository.ProductRepository;
-import com.kzcse.springboot.product.domain.ProductDetailsModel;
+import com.kzcse.springboot.product.domain.ProductDetailsResponse;
 import com.kzcse.springboot.product.domain.ProductDetailsModelBuilder;
-import com.kzcse.springboot.product.domain.ProductOfferModel;
-import com.kzcse.springboot.product.domain.ProductReviewModel;
+import com.kzcse.springboot.product.domain.ProductOfferResponse;
+import com.kzcse.springboot.product.domain.ProductReviewResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class ProductDetailsService {
@@ -28,14 +29,14 @@ public class ProductDetailsService {
         this.discountByPriceRepository = discountByPriceRepository;
     }
 
-    public ProductDetailsModel fetchDetails(String productId) {
+    public ProductDetailsResponse fetchDetails(String productId) {
         var builder = new ProductDetailsModelBuilder(productId);
         var productResponse = productRepository.findById(productId);
         var offeredProductResponse = discountByProductRepository.findOfferedProduct(productId);
         if (productResponse.isPresent()) {
             var product = productResponse.get();
             builder
-                    .setName(product.getPid())
+                    .setName(product.getName())
                     .setImageLink(product.getImageLink())
                     .setDescription(product.getDescription())
                     .setPrice(product.getPrice());
@@ -46,11 +47,11 @@ public class ProductDetailsService {
                         var offeredProductDetailsResponse = productRepository.findById(offeredProduct.getChildId());
                         if (offeredProductDetailsResponse.isPresent()) {
                             var offeredP = offeredProductDetailsResponse.get();
-                            return new ProductOfferModel(
+                            return new ProductOfferResponse(
                                     offeredP.getName(),
                                     offeredP.getImageLink(),
-                                    Integer.toString(offeredProduct.getRequiredParentQuantity()),
-                                    Integer.toString(offeredProduct.getFreeChildQuantity())
+                                    offeredProduct.getFreeChildQuantity(),
+                                    offeredProduct.getFreeChildQuantity()
                             );
                         } else
                             return null;
@@ -60,26 +61,34 @@ public class ProductDetailsService {
             createDummyReview().forEach(builder::addReview);
 
         }
-        var discountByPrice=fetchDiscountByPrice(productId);
-        if (discountByPrice!=null){
-            builder.setDiscount(discountByPrice.getAmount());
+        var discountByPrice = fetchDiscountByPrice(productId);
+        if (discountByPrice != null) {
+            builder.setDiscount(discountByPrice.getAmount(), getExpireTimeMs(3));
         }
         return builder.build();
     }
-    private DiscountByPriceEntity fetchDiscountByPrice(String productId){
-        var response= discountByPriceRepository.findById(productId);
+
+    private DiscountByPriceEntity fetchDiscountByPrice(String productId) {
+        var response = discountByPriceRepository.findById(productId);
         return response.orElse(null);
 
     }
 
-    private List<ProductReviewModel> createDummyReview() {
+    public static long getExpireTimeMs(int daysToAdd) {
+        long currentTimeInMs = System.currentTimeMillis();
+        long msInADay = TimeUnit.DAYS.toMillis(1);
+        long addedTimeInMs = daysToAdd * msInADay;
+        return currentTimeInMs + addedTimeInMs;
+    }
+
+    private List<ProductReviewResponse> createDummyReview() {
         return List.of(
-                new ProductReviewModel(
+                new ProductReviewResponse(
                         "John Doe",
                         "Great performance for the price!",
                         List.of("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9DIujrFio7TaE_ZQv_1K0eNZN1y0lErozyHrhPrwMEA&s")
                 ),
-                new ProductReviewModel(
+                new ProductReviewResponse(
                         "Jane Smith",
                         "Battery life could be better, but overall a good buy.",
                         List.of("https://diamu.com.bd/wp-content/uploads/2020/01/Apple-Iphone-11-White.jpg")

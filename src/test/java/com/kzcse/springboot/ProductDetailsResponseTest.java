@@ -1,9 +1,9 @@
 package com.kzcse.springboot;
 
-import com.kzcse.springboot.product.domain.ProductDetailsModel;
+import com.kzcse.springboot.product.domain.ProductDetailsResponse;
 import com.kzcse.springboot.product.domain.ProductDetailsModelBuilder;
-import com.kzcse.springboot.product.domain.ProductOfferModel;
-import com.kzcse.springboot.product.domain.ProductReviewModel;
+import com.kzcse.springboot.product.domain.ProductOfferResponse;
+import com.kzcse.springboot.product.domain.ProductReviewResponse;
 import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.Collections;
@@ -11,7 +11,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ProductDetailsModelTest {
+public class ProductDetailsResponseTest {
 
     @Test
     public void testProductDetailsModelBuilder() {
@@ -21,12 +21,12 @@ public class ProductDetailsModelTest {
         String description = "This is a test product.";
         int price = 100;
         int discount = 20;
-        ProductOfferModel offer = new ProductOfferModel("Test Offer", "offerImage.jpg", "2", "1");
-        ProductReviewModel review1 = new ProductReviewModel("John Doe", "Great product!", Collections.singletonList("reviewImage1.jpg"));
-        ProductReviewModel review2 = new ProductReviewModel("Jane Doe", "Not bad.", Collections.singletonList("reviewImage2.jpg"));
+        ProductOfferResponse offer = new ProductOfferResponse("Test Offer", "offerImage.jpg", "2", "1");
+        ProductReviewResponse review1 = new ProductReviewResponse("John Doe", "Great product!", Collections.singletonList("reviewImage1.jpg"));
+        ProductReviewResponse review2 = new ProductReviewResponse("Jane Doe", "Not bad.", Collections.singletonList("reviewImage2.jpg"));
 
         // Act
-        ProductDetailsModel product = new ProductDetailsModelBuilder("01")
+        ProductDetailsResponse product = new ProductDetailsModelBuilder("01")
                 .setName(name)
                 .setImagesLink(images)
                 .setDescription(description)
@@ -41,10 +41,10 @@ public class ProductDetailsModelTest {
         assertEquals(name, product.getName());
         assertEquals(images, product.getImagesLink());
         assertEquals(description, product.getDescription());
-        assertEquals(String.valueOf(price), product.getOriginalPrice());
+        assertEquals(String.valueOf(price), product.getPrice());
         assertEquals(String.valueOf(discount), product.getPriceDiscount());
         assertEquals(String.valueOf(price - discount), product.getPriceOnDiscount());
-        assertEquals(offer, product.getOfferedProduct());
+        assertEquals(offer, product.getDiscountByProduct());
         assertEquals(2, product.getReviews().size());
         assertEquals(review1, product.getReviews().get(0));
         assertEquals(review2, product.getReviews().get(1));
@@ -58,10 +58,10 @@ public class ProductDetailsModelTest {
         String description = "This is a test product with a single image.";
         int price = 200;
         int discount = 50;
-        ProductOfferModel offer = new ProductOfferModel("Test Offer", "offerImage.jpg", "2", "1");
+        ProductOfferResponse offer = new ProductOfferResponse("Test Offer", "offerImage.jpg", "2", "1");
 
         // Act
-        ProductDetailsModel product = new ProductDetailsModelBuilder("01")
+        ProductDetailsResponse product = new ProductDetailsModelBuilder("01")
                 .setName(name)
                 .setImageLink(image)
                 .setDescription(description)
@@ -74,10 +74,10 @@ public class ProductDetailsModelTest {
         assertEquals(name, product.getName());
         assertEquals(Collections.singletonList(image), product.getImagesLink());
         assertEquals(description, product.getDescription());
-        assertEquals(String.valueOf(price), product.getOriginalPrice());
+        assertEquals(String.valueOf(price), product.getPrice());
         assertEquals(String.valueOf(discount), product.getPriceDiscount());
         assertEquals(String.valueOf(price - discount), product.getPriceOnDiscount());
-        assertEquals(offer, product.getOfferedProduct());
+        assertEquals(offer, product.getDiscountByProduct());
         assertTrue(product.getReviews().isEmpty());
     }
 
@@ -88,10 +88,10 @@ public class ProductDetailsModelTest {
         List<String> images = Arrays.asList("image1.jpg", "image2.jpg");
         String description = "This is a test product with no discount.";
         int price = 300;
-        ProductOfferModel offer = new ProductOfferModel("Test Offer", "offerImage.jpg", "2", "1");
+        ProductOfferResponse offer = new ProductOfferResponse("Test Offer", "offerImage.jpg", "2", "1");
 
         // Act
-        ProductDetailsModel product = new ProductDetailsModelBuilder("01")
+        ProductDetailsResponse product = new ProductDetailsModelBuilder("01")
                 .setName(name)
                 .setImagesLink(images)
                 .setDescription(description)
@@ -103,10 +103,10 @@ public class ProductDetailsModelTest {
         assertEquals(name, product.getName());
         assertEquals(images, product.getImagesLink());
         assertEquals(description, product.getDescription());
-        assertEquals(String.valueOf(price), product.getOriginalPrice());
+        assertEquals(String.valueOf(price), product.getPrice());
         assertEquals("0", product.getPriceDiscount());
         assertEquals(String.valueOf(price), product.getPriceOnDiscount());
-        assertEquals(offer, product.getOfferedProduct());
+        assertEquals(offer, product.getDiscountByProduct());
         assertTrue(product.getReviews().isEmpty());
     }
 }

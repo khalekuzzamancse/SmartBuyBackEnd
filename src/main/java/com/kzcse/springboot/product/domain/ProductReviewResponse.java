@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class ProductReviewModel {
+public class ProductReviewResponse {
     private String reviewerName;
     private String comment;
     private List<String> imagesLink;

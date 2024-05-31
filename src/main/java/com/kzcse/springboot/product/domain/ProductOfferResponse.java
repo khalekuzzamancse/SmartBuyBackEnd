@@ -6,14 +6,14 @@ import lombok.NoArgsConstructor;
 
 /**
  * Client should not calculate business logic or
- * mathematical calculation,it only shows the details,that why returning String
+ * mathematical calculation
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductOfferModel {
+public class ProductOfferResponse {
     private String productName;
     private String imageLink;
-    private String requiredQuantity;
-    private String freeQuantity;
+    private int requiredQuantity;
+    private int freeQuantity;
 }

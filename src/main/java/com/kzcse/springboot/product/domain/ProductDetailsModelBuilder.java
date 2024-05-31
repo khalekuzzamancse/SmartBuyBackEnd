@@ -95,9 +95,9 @@ public class ProductDetailsModelBuilder {
                 .setPrice(12999)
                 .setDiscount(999)
                 .setOfferedProduct(new ProductOfferModel(
-                        "Limited Time Offer", // Assuming a product name for the offer
+                        "Iphone 5", // Assuming a product name for the offer
                         "https://d61s2hjse0ytn.cloudfront.net/card_image/None/Nokia_150_2023_Cart.webp", // Assuming a URL for the offer image
-                        "Buy 1 Get 1 Free", // Required quantity for the offer
+                        "2", // Required quantity for the offer
                         "1" // Free quantity
                 ))
                 .addReview(new ProductReviewModel(

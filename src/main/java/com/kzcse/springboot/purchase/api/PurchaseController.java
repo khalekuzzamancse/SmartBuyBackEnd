@@ -1,6 +1,5 @@
 package com.kzcse.springboot.purchase.api;
 
-import com.kzcse.springboot.api.product.Product;
 import com.kzcse.springboot.discount.data.DiscountByProductRepository;
 import com.kzcse.springboot.purchase.model.OrderRequest;
 import com.kzcse.springboot.purchase.model.OrderResponse;
@@ -19,7 +18,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 
 @RestController
 @RequestMapping("/api/purchase")
@@ -62,7 +60,7 @@ public class PurchaseController {
             List<PurchasedResponse> purchaseIds = new java.util.ArrayList<>(List.of());
             request.getItems().forEach(item -> {
                 var purchaseId = item.getProductId() + request.getUserId();
-                var discountId = discountByProductRepository.findDiscountId(item.getProductId(), item.getQuantity());
+                var discountId = discountByProductRepository.findDiscountProductId(item.getProductId(), item.getQuantity());
                 var expireDate = LocalDate.now();
                 var purchase = new PurchasedProductEntity(purchaseId, request.getUserId(), item.getProductId(), item.getQuantity(), discountId, expireDate);
 

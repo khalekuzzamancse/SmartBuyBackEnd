@@ -1,0 +1,32 @@
+[
+  {
+    "parentId": "1",
+    "childId": "10",
+    "requiredParentQuantity": 2,
+    "freeChildQuantity": 1
+  },
+  {
+    "parentId": "2",
+    "childId": "6",
+    "requiredParentQuantity": 3,
+    "freeChildQuantity": 1
+  },
+  {
+    "parentId": "3",
+    "childId": "7",
+    "requiredParentQuantity": 1,
+    "freeChildQuantity": 1
+  },
+  {
+    "parentId": "4",
+    "childId": "8",
+    "requiredParentQuantity": 5,
+    "freeChildQuantity": 2
+  },
+  {
+    "parentId": "5",
+    "childId": "9",
+    "requiredParentQuantity": 10,
+    "freeChildQuantity": 3
+  }
+]

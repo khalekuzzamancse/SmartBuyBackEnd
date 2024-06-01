@@ -17,5 +17,5 @@ public class Product {
     private List<String> images;
     private int price;
     private String description;
-    private int amountAvailable;
+    private int amountAvailable; // product quantity
 }

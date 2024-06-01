@@ -1,9 +1,9 @@
 package com.kzcse.springboot;
 
-import com.kzcse.springboot.product.domain.ProductDetailsResponse;
+import com.kzcse.springboot.product.domain.model.response_model.ProductDetailsResponse;
 import com.kzcse.springboot.product.domain.ProductDetailsModelBuilder;
-import com.kzcse.springboot.product.domain.ProductOfferResponse;
-import com.kzcse.springboot.product.domain.ProductReviewResponse;
+import com.kzcse.springboot.product.domain.model.response_model.ProductOfferResponse;
+import com.kzcse.springboot.product.domain.model.response_model.ProductReviewResponse;
 import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.Collections;

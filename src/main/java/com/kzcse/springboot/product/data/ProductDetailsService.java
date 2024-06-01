@@ -1,12 +1,13 @@
 package com.kzcse.springboot.product.data;
 
+import com.kzcse.springboot.contract.APIResponseDecorator;
 import com.kzcse.springboot.discount.data.entity.DiscountByPriceEntity;
 import com.kzcse.springboot.discount.data.repository.DiscountByPriceRepository;
 import com.kzcse.springboot.discount.data.repository.DiscountByProductRepository;
-import com.kzcse.springboot.product.domain.ProductDetailsResponse;
+import com.kzcse.springboot.product.domain.model.response_model.ProductDetailsResponse;
 import com.kzcse.springboot.product.domain.ProductDetailsModelBuilder;
-import com.kzcse.springboot.product.domain.ProductOfferResponse;
-import com.kzcse.springboot.product.domain.ProductReviewResponse;
+import com.kzcse.springboot.product.domain.model.response_model.ProductOfferResponse;
+import com.kzcse.springboot.product.domain.model.response_model.ProductReviewResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,18 +29,21 @@ public class ProductDetailsService {
         this.discountByPriceRepository = discountByPriceRepository;
     }
 
-    public ProductDetailsResponse fetchDetails(String productId) {
+    public APIResponseDecorator<ProductDetailsResponse> fetchDetails(String productId) {
         var builder = new ProductDetailsModelBuilder(productId);
         var productResponse = productRepository.findById(productId);
-        var offeredProductResponse = discountByProductRepository.findOfferedProduct(productId);
-        if (productResponse.isPresent()) {
-            var product = productResponse.get();
-            builder
-                    .setName(product.getName())
-                    .setImageLink(product.getImageLink())
-                    .setDescription(product.getDescription())
-                    .setPrice(product.getPrice());
+        if (productResponse.isEmpty()){
+            return new APIResponseDecorator<ProductDetailsResponse>()
+                    .onFailure("Server Error:ProductDetailsService::fetchDetails():Product is not found or failed to read,check the product id");
         }
+
+        var offeredProductResponse = discountByProductRepository.findOfferedProduct(productId);
+        var product = productResponse.get();
+        builder
+                .setName(product.getName())
+                .setImageLink(product.getImageLink())
+                .setDescription(product.getDescription())
+                .setPrice(product.getPrice());
         if (offeredProductResponse != null) {
             var offered = offeredProductResponse.stream().map(
                     offer -> {
@@ -65,7 +69,7 @@ public class ProductDetailsService {
         if (discountByPrice != null) {
             builder.setDiscount(discountByPrice.getAmount(), getExpireTimeMs(3));
         }
-        return builder.build();
+        return new APIResponseDecorator<ProductDetailsResponse>().onSuccess(builder.build());
     }
 
     private DiscountByPriceEntity fetchDiscountByPrice(String productId) {
@@ -74,7 +78,7 @@ public class ProductDetailsService {
 
     }
 
-    private  long getExpireTimeMs(int daysToAdd) {
+    private long getExpireTimeMs(int daysToAdd) {
         long currentTimeInMs = System.currentTimeMillis();
         long msInADay = TimeUnit.DAYS.toMillis(1);
         long addedTimeInMs = daysToAdd * msInADay;

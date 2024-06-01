@@ -1,33 +1,36 @@
 package com.kzcse.springboot.product.api;
 
+import com.kzcse.springboot.contract.APIResponseDecorator;
+import com.kzcse.springboot.product.data.service.ProductListService;
 import com.kzcse.springboot.product.domain.Product;
-import com.kzcse.springboot.discount.data.entity.DiscountByProductEntity;
-import com.kzcse.springboot.product.data.ProductEntity;
-import com.kzcse.springboot.discount.data.repository.DiscountByProductRepository;
-import com.kzcse.springboot.product.data.ProductRepository;
 import com.kzcse.springboot.product.data.ProductDetailsService;
-import com.kzcse.springboot.product.domain.ProductDetailsResponse;
+import com.kzcse.springboot.product.domain.model.response_model.ProductDetailsResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.stream.StreamSupport;
+
+/**
+ * APIs:
+ * <ul>
+ *   <li>Product list</li>
+ *   <li>Product details by ID</li>
+ * </ul>
+ */
+
 
 @RestController
 @RequestMapping("/api/product")
 public class ProductController {
 
-    private final ProductRepository productRepository;
-    private final DiscountByProductRepository byProductRepository;
     private final ProductDetailsService productDetailsService;
+    private final ProductListService productListService;
 
-    public ProductController(ProductRepository productRepository, DiscountByProductRepository byProductRepository, ProductDetailsService productDetailsService) {
-        this.productRepository = productRepository;
-        this.byProductRepository = byProductRepository;
+    public ProductController(ProductDetailsService productDetailsService, ProductListService productListService) {
         this.productDetailsService = productDetailsService;
+        this.productListService = productListService;
     }
 
     // Error handling
@@ -36,52 +39,76 @@ public class ProductController {
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    // Get all products
-    @GetMapping
-    public List<Product> getProducts() {
-        var product = StreamSupport
-                .stream(productRepository.findAll().spliterator(), false)
-                .map(this::toProduct)
-                .toList();
-        // System.out.println("api/product::"+product);
-        return product;
-    }
-
-    // Get product by id for description
-    @GetMapping("/{id}")
-    public Product getProduct(@PathVariable String id) {
-
-        var response = productRepository.findById(id);
-        return response.map(this::toProduct).orElse(null);
+    /**
+     * <ul>
+     *   <li>API that return all  of products list</li>
+     * </ul>
+     */
+    @GetMapping("/all")
+    public APIResponseDecorator<List<Product>> getAllProducts() {
+        try {
+            return productListService.getAllProducts();
+        } catch (Exception e) {
+//            e.printStackTrace();
+            return new APIResponseDecorator<List<Product>>()
+                    .onFailure("ServerError::ProductController::getAllProducts()" + e.getMessage());
+        }
 
     }
+
+    /**
+     * <ul>
+     *   <li>API that return details of product by id</li>
+     * </ul>
+     */
 
     @GetMapping("details/{id}")
-    public ProductDetailsResponse getProductDetails(@PathVariable String id) {
-        //return  ProductDetailsModelBuilder.getDemoModel();
-        return productDetailsService.fetchDetails(id);
+    public APIResponseDecorator<ProductDetailsResponse> getProductDetails(@PathVariable String id) {
+        try {
+            var response = productDetailsService.fetchDetails(id);
+            if (response != null) {
+                return response;
+            } else {
+                return new APIResponseDecorator<ProductDetailsResponse>()
+                        .onFailure("Server Error:ProductController::getProductDetails():Product Details not found");
+
+            }
+        } catch (Exception e) {
+            //e.printStackTrace();
+            return new APIResponseDecorator<ProductDetailsResponse>()
+                    .onFailure("Server Error:" + e.getMessage());
+        }
+
     }
 
 
-    @GetMapping("/offer/{id}")
-    public DiscountByProductEntity getOffer(@PathVariable String id) {
-        return StreamSupport
-                .stream(byProductRepository.findAll().spliterator(), false)
-                .filter(e -> Objects.equals(e.getParentId(), id))
-                .findFirst()
-                .orElse(null);
-
-    }
-
-
-    private Product toProduct(ProductEntity product) {
-        return new Product(
-                product.getPid(),
-                product.getName(),
-                List.of(product.getImageLink()),
-                product.getPrice(),
-                product.getDescription(),
-                10
-        );
-    }
 }
+
+
+//    @GetMapping("/offer/{id}")
+//    public DiscountByProductEntity getOffer(@PathVariable String id) {
+//        return StreamSupport
+//                .stream(byProductRepository.findAll().spliterator(), false)
+//                .filter(e -> Objects.equals(e.getParentId(), id))
+//                .findFirst()
+//                .orElse(null);
+//
+//    }
+
+// Get product by id for description
+//    @GetMapping("/{id}")
+//    public APIResponseDecorator<Product> getProduct(@PathVariable String id) {
+//        try {
+//            var response = productRepository.findById(id);
+//            if (response.isPresent())
+//                return new APIResponseDecorator<Product>().onSuccess(toProduct(response.get()));
+//            else
+//                return new APIResponseDecorator<Product>().onFailure("Server Error:Product not found");
+//
+//        } catch (Exception e) {
+//            //e.printStackTrace();
+//            return new APIResponseDecorator<Product>().onFailure("Server Error:" + e.getMessage());
+//        }
+//
+//
+//    }

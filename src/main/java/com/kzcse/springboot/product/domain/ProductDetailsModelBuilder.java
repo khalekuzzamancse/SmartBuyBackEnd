@@ -1,5 +1,10 @@
 package com.kzcse.springboot.product.domain;
 
+import com.kzcse.springboot.product.domain.model.response_model.DiscountByPriceResponse;
+import com.kzcse.springboot.product.domain.model.response_model.ProductDetailsResponse;
+import com.kzcse.springboot.product.domain.model.response_model.ProductOfferResponse;
+import com.kzcse.springboot.product.domain.model.response_model.ProductReviewResponse;
+
 import java.util.ArrayList;
 import java.util.List;
 

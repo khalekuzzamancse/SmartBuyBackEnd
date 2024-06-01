@@ -1,31 +1,26 @@
 package com.kzcse.springboot.discount.api;
 
-import com.kzcse.springboot.discount.data.entity.DiscountByPriceEntity;
-import com.kzcse.springboot.discount.data.repository.DiscountByPriceRepository;
-import com.kzcse.springboot.discount.data.entity.DiscountByProductEntity;
-import com.kzcse.springboot.discount.data.repository.DiscountByProductRepository;
+import com.kzcse.springboot.common.APIResponseDecorator;
+import com.kzcse.springboot.discount.data.service.DiscountByPriceService;
+import com.kzcse.springboot.discount.data.service.DiscountByProductService;
 import com.kzcse.springboot.discount.domain.DiscountByPriceRequestModel;
 import com.kzcse.springboot.discount.domain.DiscountByProductRequestModel;
-import com.kzcse.springboot.product.data.InventoryRepository;
-import com.kzcse.springboot.purchase.repositoy.PurchasedProductRepository;
-import com.kzcse.springboot.return_product.data.repository.ReturnProductRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api/product/discount")
 public class DiscountController {
-    private final DiscountByProductRepository discountByProductRepository;
-    private final DiscountByPriceRepository discountByPriceRepository;
+    private final DiscountByPriceService discountByPriceService;
+    private final DiscountByProductService discountByProductService;
 
-    public DiscountController(InventoryRepository inventoryRepository, DiscountByProductRepository discountByProductRepository, PurchasedProductRepository purchasedProductRepository, ReturnProductRepository returnProductRepository, DiscountByPriceRepository discountByPriceRepository) {
-        this.discountByProductRepository = discountByProductRepository;
-        this.discountByPriceRepository = discountByPriceRepository;
+    public DiscountController(DiscountByPriceService discountByPriceService, DiscountByProductService discountByProductService) {
+        this.discountByPriceService = discountByPriceService;
+        this.discountByProductService = discountByProductService;
     }
 
     // Error handling
@@ -34,59 +29,30 @@ public class DiscountController {
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping("byproduct/add")
+    @PostMapping("add/by-product")
     @ResponseStatus(HttpStatus.CREATED) // response code for success
-    public boolean addDiscount(@RequestBody List<DiscountByProductRequestModel> discounts) {
+    public APIResponseDecorator<String> addDiscountByProduct(@RequestBody List<DiscountByProductRequestModel> discounts) {
         try {
-            var entities = discounts.stream().map(this::toModel).toList();
-            System.out.println(entities);
-            discountByProductRepository.saveAll(entities);
-            return true;
+            return discountByProductService.addDiscount(discounts);
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
+            return new APIResponseDecorator<String>()
+                    .onFailure("ServerError::DiscountController::addDiscountByProduct" + e.getMessage());
         }
 
     }
 
-    @PostMapping("by-price/add")
+    @PostMapping("add/by-price")
     @ResponseStatus(HttpStatus.CREATED) // response code for success
-    public boolean addDiscountByPrice(@RequestBody List<DiscountByPriceRequestModel> entities) {
+    public APIResponseDecorator<String> addDiscountByPrice(@RequestBody List<DiscountByPriceRequestModel> entities) {
         try {
-            discountByPriceRepository.saveAll(entities.stream().map(this::toModelPrice).toList());
-            return true;
+            return discountByPriceService.addDiscountByPrice(entities);
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
+            return new APIResponseDecorator<String>()
+                    .onFailure(e.getMessage());
         }
 
-    }
-
-    private DiscountByPriceEntity toModelPrice(DiscountByPriceRequestModel model) {
-        var entity = new DiscountByPriceEntity();
-        entity.setProductId(model.getProductId());
-        entity.setExpirationTimeInMs(model.getExpirationTimeInMs());
-        entity.setAmount(model.getAmount());
-        return entity;
-    }
-
-
-    private DiscountByProductEntity toModel(DiscountByProductRequestModel model) {
-        return new DiscountByProductEntity(
-                model.getParentId() + model.getChildId(),
-                model.getParentId(),
-                model.getChildId(),
-                model.getRequiredParentQuantity(),
-                model.getFreeChildQuantity(),
-                getExpireTimeMs(5)
-        );
-    }
-
-    private long getExpireTimeMs(int daysToAdd) {
-        long currentTimeInMs = System.currentTimeMillis();
-        long msInADay = TimeUnit.DAYS.toMillis(1);
-        long addedTimeInMs = daysToAdd * msInADay;
-        return currentTimeInMs + addedTimeInMs;
     }
 
 

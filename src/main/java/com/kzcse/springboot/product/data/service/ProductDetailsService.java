@@ -1,11 +1,11 @@
 package com.kzcse.springboot.product.data.service;
 
-import com.kzcse.springboot.contract.APIResponseDecorator;
+import com.kzcse.springboot.common.APIResponseDecorator;
 import com.kzcse.springboot.discount.data.entity.DiscountByPriceEntity;
 import com.kzcse.springboot.discount.data.repository.DiscountByPriceRepository;
 import com.kzcse.springboot.discount.data.repository.DiscountByProductRepository;
-import com.kzcse.springboot.product.data.ProductEntity;
-import com.kzcse.springboot.product.data.ProductRepository;
+import com.kzcse.springboot.product.data.entity.ProductEntity;
+import com.kzcse.springboot.product.data.repository.ProductRepository;
 import com.kzcse.springboot.product.domain.model.response_model.ProductDetailsResponse;
 import com.kzcse.springboot.product.domain.ProductDetailsModelBuilder;
 import com.kzcse.springboot.product.domain.model.response_model.ProductOfferResponse;

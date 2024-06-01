@@ -12,11 +12,11 @@ public class Application {
 
     public static void main(String[] args) {
         var context = SpringApplication.run(Application.class, args);
-
-        System.out.println(new DiscountJsonUtils()
-                .addDiscountByProduct(context.getBean(DiscountByProductRepository.class)));
-        System.out.println(new DiscountJsonUtils().
-                addDiscountByPrice(context.getBean(DiscountByPriceRepository.class)));
+//
+//        System.out.println(new DiscountJsonUtils()
+//                .addDiscountByProduct(context.getBean(DiscountByProductRepository.class)));
+//        System.out.println(new DiscountJsonUtils().
+//                addDiscountByPrice(context.getBean(DiscountByPriceRepository.class)));
     }
 
 

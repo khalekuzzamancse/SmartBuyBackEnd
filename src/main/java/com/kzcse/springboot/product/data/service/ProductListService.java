@@ -1,9 +1,9 @@
 package com.kzcse.springboot.product.data.service;
 
-import com.kzcse.springboot.contract.APIResponseDecorator;
-import com.kzcse.springboot.product.data.InventoryRepository;
-import com.kzcse.springboot.product.data.ProductEntity;
-import com.kzcse.springboot.product.data.ProductRepository;
+import com.kzcse.springboot.common.APIResponseDecorator;
+import com.kzcse.springboot.product.data.repository.InventoryRepository;
+import com.kzcse.springboot.product.data.entity.ProductEntity;
+import com.kzcse.springboot.product.data.repository.ProductRepository;
 import com.kzcse.springboot.product.domain.Product;
 import org.springframework.stereotype.Service;
 

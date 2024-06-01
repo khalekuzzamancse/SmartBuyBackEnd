@@ -1,4 +1,4 @@
-package com.kzcse.springboot.contract;
+package com.kzcse.springboot.common;
 
 import lombok.Getter;
 import lombok.Setter;

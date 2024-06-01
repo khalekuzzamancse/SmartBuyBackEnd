@@ -1,5 +1,7 @@
 package com.kzcse.springboot.product.data;
 
+import com.kzcse.springboot.product.data.entity.ProductEntity;
+
 import java.util.List;
 
 public class DummyProductList {

@@ -1,6 +1,6 @@
 package com.kzcse.springboot.product.api;
 
-import com.kzcse.springboot.contract.APIResponseDecorator;
+import com.kzcse.springboot.common.APIResponseDecorator;
 import com.kzcse.springboot.product.data.service.ProductListService;
 import com.kzcse.springboot.product.domain.Product;
 import com.kzcse.springboot.product.data.service.ProductDetailsService;

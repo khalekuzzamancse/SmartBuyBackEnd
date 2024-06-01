@@ -1,9 +1,11 @@
-package com.kzcse.springboot.product.data;
+package com.kzcse.springboot.product.data.service;
 
 import com.kzcse.springboot.contract.APIResponseDecorator;
 import com.kzcse.springboot.discount.data.entity.DiscountByPriceEntity;
 import com.kzcse.springboot.discount.data.repository.DiscountByPriceRepository;
 import com.kzcse.springboot.discount.data.repository.DiscountByProductRepository;
+import com.kzcse.springboot.product.data.ProductEntity;
+import com.kzcse.springboot.product.data.ProductRepository;
 import com.kzcse.springboot.product.domain.model.response_model.ProductDetailsResponse;
 import com.kzcse.springboot.product.domain.ProductDetailsModelBuilder;
 import com.kzcse.springboot.product.domain.model.response_model.ProductOfferResponse;
@@ -12,13 +14,15 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
+/**
+ * <ul>
+ *   <li>Responsible for generating a product details</li>
+ *   <li>Details contain product basic info,offer by price,offer by product,reviews</li>
+ * </ul>
+ */
 @Service
 public class ProductDetailsService {
-    //fetch the product by id
-    //fetch the offer by id
-    //fetch the discount by id
-    //fetch the offered product
+
     private final ProductRepository productRepository;
     private final DiscountByProductRepository discountByProductRepository;
     private final DiscountByPriceRepository discountByPriceRepository;
@@ -27,8 +31,17 @@ public class ProductDetailsService {
         this.productRepository = productRepository;
         this.discountByProductRepository = discountByProductRepository;
         this.discountByPriceRepository = discountByPriceRepository;
+
     }
 
+    /**
+     * <ul>
+     *   <li>Fetch the @{@link ProductEntity} that contain the product info</li>
+     *   <li>Fetch OfferByProduct info(if available) </li>
+     *   <li>Fetch OfferByPrice info(if available) </li>
+     *   <li>{@link ProductDetailsResponse} will directly convert to JSON in client side</li>
+     * </ul>
+     */
     public APIResponseDecorator<ProductDetailsResponse> fetchDetails(String productId) {
         var builder = new ProductDetailsModelBuilder(productId);
         var productResponse = productRepository.findById(productId);

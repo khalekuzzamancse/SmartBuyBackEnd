@@ -9,12 +9,14 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.StreamSupport;
+
 /**
  * Responsibility:
  * <ul>
  *   <li>Fetch the product list from {@link ProductRepository}</li>
  *   <li>Fetch product availableAmount from {@link InventoryRepository}</li>
  *   <li>Make the {@link Product} model by merging product info and availableAmount</li>
+ *   <li>{@link Product} will directly convert to JSON in client side</li>
  * </ul>
  */
 
@@ -29,6 +31,14 @@ public class ProductListService {
         this.inventoryRepository = inventoryRepository;
     }
 
+
+    /**
+     * <ul>
+     *   <li>Fetch {@link ProductEntity}</li>
+     *   <li>return {@link  APIResponseDecorator}  by wrapping {@link Product} for API response</li>
+     *  <li>{@link Product} will directly convert to JSON in client side</li>
+     * </ul>
+     */
     public APIResponseDecorator<List<Product>> getAllProducts() throws Exception {
         try {
             var products = StreamSupport
@@ -50,6 +60,16 @@ public class ProductListService {
             }
         }
     }
+
+    /**
+     * <ul>
+     *   <li>Takes {@link ProductEntity}</li>
+     *   <li>Fetch the availableAmount of that product {@link ProductEntity}</li>
+     *   <li>Convert {@link ProductEntity} to {@link  Product } for API response</li>
+     *  <li>{@link Product} will directly convert to JSON in client side</li>
+     * </ul>
+     */
+
 
     private Product toProduct(ProductEntity product) throws Exception {
         var quantityResponse = inventoryRepository.findById(product.getPid());

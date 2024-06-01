@@ -3,7 +3,7 @@ package com.kzcse.springboot.product.api;
 import com.kzcse.springboot.contract.APIResponseDecorator;
 import com.kzcse.springboot.product.data.service.ProductListService;
 import com.kzcse.springboot.product.domain.Product;
-import com.kzcse.springboot.product.data.ProductDetailsService;
+import com.kzcse.springboot.product.data.service.ProductDetailsService;
 import com.kzcse.springboot.product.domain.model.response_model.ProductDetailsResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

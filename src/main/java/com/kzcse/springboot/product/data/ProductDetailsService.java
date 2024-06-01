@@ -50,7 +50,7 @@ public class ProductDetailsService {
                             return new ProductOfferResponse(
                                     offeredProduct.getName(),
                                     offeredProduct.getImageLink(),
-                                    offer.getFreeChildQuantity(),
+                                    offer.getRequiredParentQuantity(),
                                     offer.getFreeChildQuantity(),
                                     offer.getExpirationTimeInMs()
                             );

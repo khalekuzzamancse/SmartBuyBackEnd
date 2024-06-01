@@ -66,7 +66,7 @@ public class ReturnProductController {
                     );
 
                     return new ProductReturnResponseModel(
-                            "You have to return " + offeredProductAmount + " offered product(s) also."
+                            "You have to return " +request.getReturnQuantity()+"+"+ offeredProductAmount+"(free) product(s) "
                     );
                 }
 
@@ -80,11 +80,10 @@ public class ReturnProductController {
                             request.getReturnQuantity(),
                             0)
             );
-            return new ProductReturnResponseModel(null
-            );
+            return new ProductReturnResponseModel("You have to return " + request.getReturnQuantity() + " product(s)");
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
+            return   new ProductReturnResponseModel("Failed to request:SERVER_ERROR");
         }
 
     }

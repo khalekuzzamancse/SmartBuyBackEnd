@@ -1,4 +1,4 @@
-package com.kzcse.springboot.api.product;
+package com.kzcse.springboot.product.data;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

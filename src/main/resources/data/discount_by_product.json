@@ -2,7 +2,7 @@
   {
     "parentId": "1",
     "childId": "10",
-    "requiredParentQuantity": 2,
+    "requiredParentQuantity": 3,
     "freeChildQuantity": 1
   },
   {

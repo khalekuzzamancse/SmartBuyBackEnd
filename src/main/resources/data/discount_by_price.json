@@ -1,0 +1,12 @@
+[
+  {
+    "productId": "1",
+    "amount": 1999,
+    "expirationTimeInMs": 1672531199000
+  },
+  {
+    "productId": "2",
+    "amount": 100,
+    "expirationTimeInMs": 1672531199000
+  }
+]

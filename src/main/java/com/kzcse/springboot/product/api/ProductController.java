@@ -1,5 +1,6 @@
-package com.kzcse.springboot.api.product;
+package com.kzcse.springboot.product.api;
 
+import com.kzcse.springboot.product.data.Product;
 import com.kzcse.springboot.discount.data.entity.DiscountByProductEntity;
 import com.kzcse.springboot.enitity.entity.ProductEntity;
 import com.kzcse.springboot.discount.data.repository.DiscountByProductRepository;

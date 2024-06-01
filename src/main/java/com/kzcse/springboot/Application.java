@@ -1,22 +1,24 @@
 package com.kzcse.springboot;
 
+import com.kzcse.springboot.discount.data.DiscountJsonUtils;
+import com.kzcse.springboot.discount.data.repository.DiscountByPriceRepository;
+import com.kzcse.springboot.discount.data.repository.DiscountByProductRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class Application {
 
+
     public static void main(String[] args) {
-       SpringApplication.run(Application.class, args);
-//        var repo = context.getBean(ProductRepository.class);
-//        var result = repo.saveAll(new DummyProductList().productsList);
-//        System.out.println(result);
-//        var repo = context.getBean(InventoryRepository.class);
-//        var result=repo.saveAll(new DummyInventory().inventories);
-//        System.out.println(result);
-//        var repo = context.getBean(DiscountByProductRepository.class);
-//        var result = repo.saveAll(new DummyOffer().offers);
-//        System.out.println(result);
+        var context = SpringApplication.run(Application.class, args);
+        System.out.println(new DiscountJsonUtils()
+                .addDiscountByProduct(context.getBean(DiscountByProductRepository.class)));
+        System.out.println(new DiscountJsonUtils().
+                addDiscountByPrice(context.getBean(DiscountByPriceRepository.class)));
     }
 
+
 }
+
+

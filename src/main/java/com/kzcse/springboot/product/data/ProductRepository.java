@@ -1,6 +1,5 @@
-package com.kzcse.springboot.enitity.repository;
+package com.kzcse.springboot.product.data;
 
-import com.kzcse.springboot.enitity.entity.ProductEntity;
 import org.springframework.data.repository.CrudRepository;
 
 public interface ProductRepository extends CrudRepository<ProductEntity, String> {

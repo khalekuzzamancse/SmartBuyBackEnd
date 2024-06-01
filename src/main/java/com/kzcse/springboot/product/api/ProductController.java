@@ -1,10 +1,10 @@
 package com.kzcse.springboot.product.api;
 
-import com.kzcse.springboot.product.data.Product;
+import com.kzcse.springboot.product.domain.Product;
 import com.kzcse.springboot.discount.data.entity.DiscountByProductEntity;
-import com.kzcse.springboot.enitity.entity.ProductEntity;
+import com.kzcse.springboot.product.data.ProductEntity;
 import com.kzcse.springboot.discount.data.repository.DiscountByProductRepository;
-import com.kzcse.springboot.enitity.repository.ProductRepository;
+import com.kzcse.springboot.product.data.ProductRepository;
 import com.kzcse.springboot.product.data.ProductDetailsService;
 import com.kzcse.springboot.product.domain.ProductDetailsResponse;
 import org.springframework.http.HttpStatus;

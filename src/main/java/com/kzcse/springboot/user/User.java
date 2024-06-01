@@ -1,4 +1,4 @@
-package com.kzcse.springboot.enitity.entity;
+package com.kzcse.springboot.user;
 
 
 import jakarta.persistence.Entity;

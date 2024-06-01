@@ -6,7 +6,7 @@ import com.kzcse.springboot.discount.data.entity.DiscountByProductEntity;
 import com.kzcse.springboot.discount.data.repository.DiscountByProductRepository;
 import com.kzcse.springboot.discount.domain.DiscountByPriceRequestModel;
 import com.kzcse.springboot.discount.domain.DiscountByProductRequestModel;
-import com.kzcse.springboot.enitity.repository.InventoryRepository;
+import com.kzcse.springboot.product.data.InventoryRepository;
 import com.kzcse.springboot.purchase.repositoy.PurchasedProductRepository;
 import com.kzcse.springboot.return_product.data.repository.ReturnProductRepository;
 import org.springframework.http.HttpStatus;

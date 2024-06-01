@@ -3,7 +3,6 @@ package com.kzcse.springboot.product.data;
 import com.kzcse.springboot.discount.data.entity.DiscountByPriceEntity;
 import com.kzcse.springboot.discount.data.repository.DiscountByPriceRepository;
 import com.kzcse.springboot.discount.data.repository.DiscountByProductRepository;
-import com.kzcse.springboot.enitity.repository.ProductRepository;
 import com.kzcse.springboot.product.domain.ProductDetailsResponse;
 import com.kzcse.springboot.product.domain.ProductDetailsModelBuilder;
 import com.kzcse.springboot.product.domain.ProductOfferResponse;

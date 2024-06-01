@@ -1,6 +1,4 @@
-package com.kzcse.springboot.enitity.souce;
-
-import com.kzcse.springboot.enitity.entity.ProductEntity;
+package com.kzcse.springboot.product.data;
 
 import java.util.List;
 

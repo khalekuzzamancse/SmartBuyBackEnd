@@ -1,6 +1,5 @@
-package com.kzcse.springboot.enitity.repository;
+package com.kzcse.springboot.product.data;
 
-import com.kzcse.springboot.enitity.entity.InventoryEntity;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

@@ -19,6 +19,7 @@ public class PurchasedProductService {
     }
 
     public List<PurchasedProductResponse> getPurchasedProduct(@PathVariable String userId) {
+        //TODO(Check user is exits or not)
         List<PurchasedProductResponse> responses = new java.util.ArrayList<>(List.of());
 
         purchasedProductRepository

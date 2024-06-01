@@ -1,20 +1,16 @@
 package com.kzcse.springboot.purchase.api;
 
-import com.kzcse.springboot.discount.data.repository.DiscountByProductRepository;
-import com.kzcse.springboot.purchase.model.OrderRequest;
-import com.kzcse.springboot.purchase.model.OrderResponse;
-import com.kzcse.springboot.purchase.entity.PurchasedProductEntity;
-import com.kzcse.springboot.purchase.model.PurchasedProductResponse;
-import com.kzcse.springboot.purchase.model.PurchasedResponse;
-import com.kzcse.springboot.product.data.repository.InventoryRepository;
+import com.kzcse.springboot.common.APIResponseDecorator;
+import com.kzcse.springboot.purchase.data.service.ProductOrderService;
+import com.kzcse.springboot.purchase.data.service.PurchasedProductService;
+import com.kzcse.springboot.purchase.domain.request_model.OrderRequest;
+import com.kzcse.springboot.purchase.domain.response_model.OrderResponse;
+import com.kzcse.springboot.purchase.domain.response_model.PurchasedProductResponse;
 import com.kzcse.springboot.product.data.repository.ProductRepository;
-import com.kzcse.springboot.purchase.repositoy.PurchasedProductRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -23,15 +19,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RequestMapping("/api/purchase")
 public class PurchaseController {
     private final ProductRepository productRepository;
-    private final InventoryRepository inventoryRepository;
-    private final DiscountByProductRepository discountByProductRepository;
-    private final PurchasedProductRepository purchasedProductRepository;
+    private final ProductOrderService productOrderService;
+    private final PurchasedProductService purchasedProductService;
 
-    public PurchaseController(ProductRepository productRepository, InventoryRepository inventoryRepository, DiscountByProductRepository discountByProductRepository, PurchasedProductRepository purchasedProductRepository) {
+    public PurchaseController(ProductRepository productRepository, ProductOrderService productOrderService, PurchasedProductService purchasedProductService) {
         this.productRepository = productRepository;
-        this.inventoryRepository = inventoryRepository;
-        this.discountByProductRepository = discountByProductRepository;
-        this.purchasedProductRepository = purchasedProductRepository;
+        this.productOrderService = productOrderService;
+        this.purchasedProductService = purchasedProductService;
     }
 
     // Error handling
@@ -55,61 +49,24 @@ public class PurchaseController {
 
     @PostMapping("/confirm")
     @ResponseStatus(HttpStatus.CREATED) // response code for success
-    public List<PurchasedResponse> orderConfirm(@RequestBody OrderRequest request) {
+    public APIResponseDecorator<String> orderConfirm(@RequestBody OrderRequest request) {
         try {
-            List<PurchasedResponse> purchaseIds = new java.util.ArrayList<>(List.of());
-            request.getItems().forEach(item -> {
-                var purchaseId = item.getProductId() + request.getUserId();
-                var discountId = discountByProductRepository.findDiscountProductId(item.getProductId(), item.getQuantity());
-                var expireDate = LocalDate.now();
-                var purchase = new PurchasedProductEntity(purchaseId, request.getUserId(), item.getProductId(), item.getQuantity(), discountId, expireDate);
-
-                var response = purchasedProductRepository.save(purchase);
-                var isSuccess = (purchase.equals(response));
-                if (isSuccess) {
-                    inventoryRepository.subtractQuantity(item.getProductId(), item.getQuantity());
-                    purchaseIds.add(new PurchasedResponse(purchaseId, discountId, expireDate.toString()));
-                    if (discountId != null) {
-                        var discount = discountByProductRepository.findById(discountId).orElse(null);
-                        if (discount != null) {
-                            var childId = discount.getChildId();
-                            var quantity = discount.getFreeChildQuantity();
-                            inventoryRepository.subtractQuantity(childId, quantity);
-                        }
-                        System.out.println(purchase);
-                    }
-
-                }
-            });
-            //return list of purchase id
-            return purchaseIds;
+            productOrderService.orderConfirm(request);
+            return new APIResponseDecorator<String>().onSuccess("Successfully purchases");
         } catch (Exception e) {
-            return Collections.emptyList();
+            return new APIResponseDecorator<String>().onFailure("Failed purchases" + e.getMessage());
         }
     }
 
+
     //return the purchased product of user
     @GetMapping("/{userId}")
-    public List<PurchasedProductResponse> getProduct(@PathVariable String userId) {
-        List<PurchasedProductResponse> responses = new java.util.ArrayList<>(List.of());
-        purchasedProductRepository.findByUserId(userId).forEach(purchased -> {
-            var productResponse = productRepository.findById(purchased.getProductId());
-            if (productResponse.isPresent()) {
-                var product = productResponse.get();
-                var response = new PurchasedProductResponse(
-                        purchased.getId(),
-                        product.getName(),
-                        product.getImageLink(),
-                        purchased.getQuantity(),
-                        purchased.getReturnExpireDate().toString()
-
-                );
-                responses.add(response);
-            }
-        });
-
-        return responses;
+    public APIResponseDecorator<List<PurchasedProductResponse>> getProduct(@PathVariable String userId) {
+        try {
+            return new APIResponseDecorator<List<PurchasedProductResponse>>()
+                    .onSuccess(purchasedProductService.getPurchasedProduct(userId));
+        } catch (Exception e) {
+            return new APIResponseDecorator<List<PurchasedProductResponse>>().onFailure("Failed purchases" + e.getMessage());
+        }
     }
-
-
 }

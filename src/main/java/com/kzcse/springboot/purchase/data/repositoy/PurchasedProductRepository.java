@@ -1,6 +1,6 @@
-package com.kzcse.springboot.purchase.repositoy;
+package com.kzcse.springboot.purchase.data.repositoy;
 
-import com.kzcse.springboot.purchase.entity.PurchasedProductEntity;
+import com.kzcse.springboot.purchase.data.entity.PurchasedProductEntity;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 

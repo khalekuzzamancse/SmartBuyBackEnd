@@ -1,4 +1,4 @@
-package com.kzcse.springboot.purchase.entity;
+package com.kzcse.springboot.purchase.data.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

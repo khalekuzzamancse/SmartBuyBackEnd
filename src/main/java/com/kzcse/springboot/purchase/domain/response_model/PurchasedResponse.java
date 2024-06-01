@@ -1,9 +1,7 @@
-package com.kzcse.springboot.purchase.model;
+package com.kzcse.springboot.purchase.domain.response_model;
 
 import jakarta.persistence.Id;
 import lombok.*;
-
-import java.time.LocalDate;
 
 @Getter
 @Setter

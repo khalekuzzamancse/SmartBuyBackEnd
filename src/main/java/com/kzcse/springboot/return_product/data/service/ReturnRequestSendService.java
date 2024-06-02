@@ -1,6 +1,4 @@
-package com.kzcse.springboot.return_product.data.service;//package com.kzcse.springboot.return_product.data.service;
-//
-//import com.kzcse.springboot.discount.data.repository.DiscountByProductRepository;
+package com.kzcse.springboot.return_product.data.service;
 
 import com.kzcse.springboot.common.ErrorMessage;
 import com.kzcse.springboot.discount.data.entity.DiscountByProductEntity;
@@ -28,7 +26,14 @@ public class ReturnRequestSendService {
 
     public ProductReturnResponseModel createReturnRequestOrThrow(@RequestBody ReturnRequest request) throws Exception {
         var purchasedProduct = getPurchasedHistoryOrThrow(request.getPurchaseId());
+
         var productId = purchasedProduct.getProductId();
+
+        var mainProductPurchasedQuantity = purchasedProduct.getQuantity(); //Amount of main product that was purchased
+        var returnedProductQuantity = request.getReturnQuantity();
+        throwIfInvalidReturnAmount(mainProductPurchasedQuantity, returnedProductQuantity);
+
+
         var discountId = purchasedProduct.getDiscountId();
         var wasDiscount = (discountId != null);
         if (wasDiscount) {
@@ -107,7 +112,26 @@ public class ReturnRequestSendService {
 
     }
 
+
     private PurchasedProductEntity getPurchasedHistoryOrThrow(String purchasedId) throws Exception {
-      return  purchasedFactory.createHistoryUseCase().throwIfDoesNotExits(purchasedId);
+        return purchasedFactory.createHistoryUseCase().throwIfDoesNotExits(purchasedId);
+    }
+
+    private void throwIfInvalidReturnAmount(int purchasedAmount, int returnAmount) throws Exception {
+        if (returnAmount <= 0) {
+            throw new ErrorMessage()
+                    .setMessage("Failed,invalid return amount")
+                    .setCauses("Return amount="+returnAmount+" ;minimum allowed amount=1")
+                    .setSource(this.getClass().getSimpleName() + "::throwIfInvalidReturnAmount")
+                    .toException();
+        } else if (returnAmount > purchasedAmount) {
+            throw new ErrorMessage()
+                    .setMessage("Failed,invalid return amount")
+                    .setCauses("Return amount="+returnAmount+" ;but purchased amount= "+purchasedAmount)
+                    .setSource(this.getClass().getSimpleName() + "::throwIfInvalidReturnAmount")
+                    .toException();
+        }
+
+
     }
 }

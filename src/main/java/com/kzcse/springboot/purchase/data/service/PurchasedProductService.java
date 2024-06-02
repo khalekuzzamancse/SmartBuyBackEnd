@@ -1,5 +1,7 @@
 package com.kzcse.springboot.purchase.data.service;
 
+import com.kzcse.springboot.auth.data.service.UserService;
+import com.kzcse.springboot.common.ErrorMessage;
 import com.kzcse.springboot.product.data.repository.ProductRepository;
 import com.kzcse.springboot.purchase.data.repositoy.PurchasedProductRepository;
 import com.kzcse.springboot.purchase.domain.response_model.PurchasedProductResponse;
@@ -12,14 +14,22 @@ import java.util.List;
 public class PurchasedProductService {
     private final ProductRepository productRepository;
     private final PurchasedProductRepository purchasedProductRepository;
+    private final UserService userService;
 
-    public PurchasedProductService(ProductRepository productRepository, PurchasedProductRepository purchasedProductRepository) {
+    public PurchasedProductService(ProductRepository productRepository, PurchasedProductRepository purchasedProductRepository, UserService userService) {
         this.productRepository = productRepository;
         this.purchasedProductRepository = purchasedProductRepository;
+        this.userService = userService;
     }
 
-    public List<PurchasedProductResponse> getPurchasedProduct(@PathVariable String userId) {
-        //TODO(Check user is exits or not)
+    public List<PurchasedProductResponse> getPurchasedProductOrThrow(@PathVariable String userId) throws Exception {
+        if (userService.doesNotExit(userId)) {
+            throw new ErrorMessage()
+                    .setMessage("failed")
+                    .setCauses("User does not Exits")
+                    .setSource("::ProductOrderService::orderConfirmOrThrow")
+                    .toException();
+        }
         List<PurchasedProductResponse> responses = new java.util.ArrayList<>(List.of());
 
         purchasedProductRepository

@@ -1,6 +1,6 @@
-package com.kzcse.springboot.product.data.repository;
+package com.kzcse.springboot.inventory.data;
 
-import com.kzcse.springboot.product.data.entity.InventoryEntity;
+import com.sun.net.httpserver.Authenticator;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -10,7 +10,9 @@ import java.util.Optional;
 
 public interface InventoryRepository extends CrudRepository<InventoryEntity, String> {
 
-    //    @Modifying
+
+//
+//        @Modifying
 //    @Transactional
 //    @Query("update InventoryEntity i set i.quantity = i.quantity - ?2 where i.pid = ?1")
 //    void subtractQuantity(String pid, int quantity);

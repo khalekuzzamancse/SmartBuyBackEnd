@@ -1,6 +1,7 @@
 package com.kzcse.springboot.product.api;
 
 import com.kzcse.springboot.common.APIResponseDecorator;
+import com.kzcse.springboot.product.data.entity.ProductEntity;
 import com.kzcse.springboot.product.data.service.ProductListService;
 import com.kzcse.springboot.product.domain.Product;
 import com.kzcse.springboot.product.data.service.ProductDetailsService;
@@ -39,6 +40,18 @@ public class ProductController {
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
     }
 
+    @PostMapping("/add")
+    @ResponseStatus(HttpStatus.CREATED) // response code for success
+    public ResponseEntity<Void> addProducts(@RequestBody List<ProductEntity> entities) {
+        try {
+            productListService.addProductsOrThrow(entities);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+
+    }
+
     /**
      * <ul>
      *   <li>API that return all  of products list</li>
@@ -47,11 +60,10 @@ public class ProductController {
     @GetMapping("/all")
     public APIResponseDecorator<List<Product>> getAllProducts() {
         try {
-            return productListService.getAllProducts();
+            return new APIResponseDecorator<List<Product>>().onSuccess(productListService.getAllProducts());
         } catch (Exception e) {
-//            e.printStackTrace();
             return new APIResponseDecorator<List<Product>>()
-                    .onFailure("ServerError::ProductController::getAllProducts()" + e.getMessage());
+                    .withException(e, "Failed to add addDiscount By Price", "DiscountController::addDiscountByPrice");
         }
 
     }
@@ -65,50 +77,16 @@ public class ProductController {
     @GetMapping("details/{id}")
     public APIResponseDecorator<ProductDetailsResponse> getProductDetails(@PathVariable String id) {
         try {
-            var response = productDetailsService.fetchDetails(id);
-            if (response != null) {
-                return response;
-            } else {
-                return new APIResponseDecorator<ProductDetailsResponse>()
-                        .onFailure("Server Error:ProductController::getProductDetails():Product Details not found");
+            var response = productDetailsService.fetchDetailsOrThrows(id);
+            return new APIResponseDecorator<ProductDetailsResponse>().onSuccess(response);
 
-            }
         } catch (Exception e) {
-            //e.printStackTrace();
             return new APIResponseDecorator<ProductDetailsResponse>()
-                    .onFailure("Server Error:" + e.getMessage());
+                    .withException(e, "Failed to add addDiscount By Price", "DiscountController::addDiscountByPrice");
+
         }
 
     }
 
 
 }
-
-
-//    @GetMapping("/offer/{id}")
-//    public DiscountByProductEntity getOffer(@PathVariable String id) {
-//        return StreamSupport
-//                .stream(byProductRepository.findAll().spliterator(), false)
-//                .filter(e -> Objects.equals(e.getParentId(), id))
-//                .findFirst()
-//                .orElse(null);
-//
-//    }
-
-// Get product by id for description
-//    @GetMapping("/{id}")
-//    public APIResponseDecorator<Product> getProduct(@PathVariable String id) {
-//        try {
-//            var response = productRepository.findById(id);
-//            if (response.isPresent())
-//                return new APIResponseDecorator<Product>().onSuccess(toProduct(response.get()));
-//            else
-//                return new APIResponseDecorator<Product>().onFailure("Server Error:Product not found");
-//
-//        } catch (Exception e) {
-//            //e.printStackTrace();
-//            return new APIResponseDecorator<Product>().onFailure("Server Error:" + e.getMessage());
-//        }
-//
-//
-//    }

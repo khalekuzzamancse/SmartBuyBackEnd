@@ -13,20 +13,35 @@ import lombok.Setter;
 @Setter
 public class APIResponseDecorator<T> {
     private T response;
-    private String errorMessage;
+    private ErrorMessage message;
     private boolean success;
 
     public APIResponseDecorator<T> onSuccess(T response) {
         this.response = response;
-        this.errorMessage = null;
-        this.success =true;
+        this.message = null;
+        this.success = true;
         return this;
     }
 
-    public APIResponseDecorator<T> onFailure(String errorMessage) {
+    public APIResponseDecorator<T> onFailure(ErrorMessage errorMessage) {
         this.response = null;
-        this.errorMessage = errorMessage;
-        this.success =false;
+        this.message = errorMessage;
+        this.success = false;
         return this;
     }
+
+    public APIResponseDecorator<T> withException(Exception e, String message, String source) {
+        ErrorMessage errorMessage;
+        if (e instanceof ErrorMessageException) {
+            errorMessage = ((ErrorMessageException) e).get();
+
+        } else {
+            errorMessage = new ErrorMessage()
+                    .setMessage(message)
+                    .setCauses(e.getMessage())
+                    .setSource(source);
+        }
+        return new APIResponseDecorator<T>().onFailure(errorMessage);
+    }
+
 }

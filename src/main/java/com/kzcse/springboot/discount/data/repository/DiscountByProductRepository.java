@@ -7,8 +7,16 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.List;
 
 public interface DiscountByProductRepository extends CrudRepository<DiscountByProductEntity, String> {
+
+    /**
+     * <ul>
+     *   <li>It is possible that somehow a parentId is present multiple time,in different row,that is why returning list,otherwise causes exception</li>
+     *   <li>Details contain product basic info,offer by price,offer by product,reviews</li>
+     * </ul>
+     */
     @Query("SELECT d.id FROM DiscountByProductEntity d WHERE d.parentId = ?1 AND ?2 >= d.requiredParentQuantity")
-    String findDiscountProductId(String parentId, int purchaseQuantity);
+    List<String> findDiscountProductId(String parentId, int purchaseQuantity);
+
     // Custom JPQL query to retrieve all discounts for a given parentId
     @Query("SELECT d FROM DiscountByProductEntity d WHERE d.parentId = :parentId")
     List<DiscountByProductEntity> findOfferedProduct(String parentId);

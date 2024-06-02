@@ -1,6 +1,8 @@
 package com.kzcse.springboot.product.data.service;
 
 import com.kzcse.springboot.common.APIResponseDecorator;
+import com.kzcse.springboot.common.ErrorMessage;
+import com.kzcse.springboot.common.ErrorMessageException;
 import com.kzcse.springboot.discount.data.entity.DiscountByPriceEntity;
 import com.kzcse.springboot.discount.data.repository.DiscountByPriceRepository;
 import com.kzcse.springboot.discount.data.repository.DiscountByProductRepository;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
 /**
  * <ul>
  *   <li>Responsible for generating a product details</li>
@@ -42,12 +45,15 @@ public class ProductDetailsService {
      *   <li>{@link ProductDetailsResponse} will directly convert to JSON in client side</li>
      * </ul>
      */
-    public APIResponseDecorator<ProductDetailsResponse> fetchDetails(String productId) {
+    public ProductDetailsResponse fetchDetailsOrThrows(String productId) throws Exception {
         var builder = new ProductDetailsModelBuilder(productId);
         var productResponse = productRepository.findById(productId);
-        if (productResponse.isEmpty()){
-            return new APIResponseDecorator<ProductDetailsResponse>()
-                    .onFailure("Server Error:ProductDetailsService::fetchDetails():Product is not found or failed to read,check the product id");
+        if (productResponse.isEmpty()) {
+            throw new ErrorMessage()
+                    .setMessage("failed to fetch details")
+                    .setCauses("Product with id" + productId + " is not found or failed to read")
+                    .setSource("ProductDetailsService::fetchDetailsOrThrows")
+                    .toException();
         }
 
         var offeredProductResponse = discountByProductRepository.findOfferedProduct(productId);
@@ -82,7 +88,7 @@ public class ProductDetailsService {
         if (discountByPrice != null) {
             builder.setDiscount(discountByPrice.getAmount(), getExpireTimeMs(3));
         }
-        return new APIResponseDecorator<ProductDetailsResponse>().onSuccess(builder.build());
+        return builder.build();
     }
 
     private DiscountByPriceEntity fetchDiscountByPrice(String productId) {

@@ -1,6 +1,7 @@
 package com.kzcse.springboot.discount.data.service;
 
 import com.kzcse.springboot.common.APIResponseDecorator;
+import com.kzcse.springboot.common.ErrorMessage;
 import com.kzcse.springboot.discount.data.entity.DiscountByPriceEntity;
 import com.kzcse.springboot.discount.data.repository.DiscountByPriceRepository;
 import com.kzcse.springboot.discount.domain.DiscountByPriceRequestModel;
@@ -19,18 +20,21 @@ public class DiscountByPriceService {
         this.productRepository = productRepository;
     }
 
-    public APIResponseDecorator<String> addDiscountByPrice(List<DiscountByPriceRequestModel> entities) throws Exception {
-            checkProductDoesExitOrThrow(entities);
-            discountByPriceRepository.saveAll(entities.stream().map(this::toModel).toList());
-            return new APIResponseDecorator<String>().onSuccess("Added Successfully");
+    public void addDiscountByPriceOrThrow(List<DiscountByPriceRequestModel> entities) throws Exception {
+        checkProductDoesExitOrThrow(entities);
+        discountByPriceRepository.saveAll(entities.stream().map(this::toModel).toList());
     }
 
 
     private void checkProductDoesExitOrThrow(List<DiscountByPriceRequestModel> entities) throws Exception {
         for (DiscountByPriceRequestModel requestModel : entities) {
-            if (!productRepository.existsById(requestModel.getProductId())) {
-                throw new Exception("Product with id " + requestModel.getProductId() +
-                        " does not exits\nServerError::DiscountByPriceService::addDiscountByPrice");
+            var productId = requestModel.getProductId();
+            if (!productRepository.existsById(productId)) {
+                throw new ErrorMessage()
+                        .setMessage("failed to add addDiscountByPrice")
+                        .setCauses(productId + "does not exits in  database")
+                        .setSource("DiscountByPriceService::addDiscountByPriceOrThrow::checkProductDoesExitOrThrow")
+                        .toException();
             }
         }
 

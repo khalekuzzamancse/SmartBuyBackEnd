@@ -1,7 +1,7 @@
 package com.kzcse.springboot.return_product.api;
 
 import com.kzcse.springboot.discount.data.repository.DiscountByProductRepository;
-import com.kzcse.springboot.product.data.repository.InventoryRepository;
+import com.kzcse.springboot.inventory.data.InventoryRepository;
 import com.kzcse.springboot.purchase.data.repositoy.PurchasedProductRepository;
 import com.kzcse.springboot.return_product.data.entiry.ReturningPendingEntity;
 import com.kzcse.springboot.return_product.data.repository.ReturnProductRepository;

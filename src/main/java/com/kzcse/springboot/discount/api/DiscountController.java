@@ -33,11 +33,11 @@ public class DiscountController {
     @ResponseStatus(HttpStatus.CREATED) // response code for success
     public APIResponseDecorator<String> addDiscountByProduct(@RequestBody List<DiscountByProductRequestModel> discounts) {
         try {
-            return discountByProductService.addDiscount(discounts);
+            discountByProductService.addDiscountOrThrow(discounts);
+            return new APIResponseDecorator<String>().onSuccess("Success");
         } catch (Exception e) {
-            e.printStackTrace();
-            return new APIResponseDecorator<String>()
-                    .onFailure("ServerError::DiscountController::addDiscountByProduct" + e.getMessage());
+            return new APIResponseDecorator<String>().withException(e, "failed to add", "DiscountController::addDiscountByProduct");
+
         }
 
     }
@@ -46,11 +46,10 @@ public class DiscountController {
     @ResponseStatus(HttpStatus.CREATED) // response code for success
     public APIResponseDecorator<String> addDiscountByPrice(@RequestBody List<DiscountByPriceRequestModel> entities) {
         try {
-            return discountByPriceService.addDiscountByPrice(entities);
+            discountByPriceService.addDiscountByPriceOrThrow(entities);
+            return new APIResponseDecorator<String>().onSuccess("Success");
         } catch (Exception e) {
-            e.printStackTrace();
-            return new APIResponseDecorator<String>()
-                    .onFailure(e.getMessage());
+            return new APIResponseDecorator<String>().withException(e, "failed to add", "DiscountController::addDiscountByPrice");
         }
 
     }

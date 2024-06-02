@@ -1,7 +1,9 @@
 package com.kzcse.springboot.product.data.service;
 
 import com.kzcse.springboot.common.APIResponseDecorator;
-import com.kzcse.springboot.product.data.repository.InventoryRepository;
+import com.kzcse.springboot.common.ErrorMessage;
+import com.kzcse.springboot.inventory.data.InventoryEntity;
+import com.kzcse.springboot.inventory.data.InventoryRepository;
 import com.kzcse.springboot.product.data.entity.ProductEntity;
 import com.kzcse.springboot.product.data.repository.ProductRepository;
 import com.kzcse.springboot.product.domain.Product;
@@ -31,6 +33,25 @@ public class ProductListService {
         this.inventoryRepository = inventoryRepository;
     }
 
+    public void addProductsOrThrow(List<ProductEntity> entities) throws Exception {
+        var iterator = productRepository.saveAll(entities);
+        var savedEntities = StreamSupport
+                .stream(iterator
+                                .spliterator(),
+                        false
+                )
+                .toList();
+        var isNotSaved = savedEntities.size() != entities.size();
+        if (isNotSaved) {
+            throw new ErrorMessage()
+                    .setMessage("failed to fetch save all")
+                    .setCauses("Not all products were added successfully")
+                    .setSource("ProductListService::addProductsOrThrow")
+                    .toException();
+        }
+
+
+    }
 
     /**
      * <ul>
@@ -39,26 +60,32 @@ public class ProductListService {
      *  <li>{@link Product} will directly convert to JSON in client side</li>
      * </ul>
      */
-    public APIResponseDecorator<List<Product>> getAllProducts() throws Exception {
-        try {
-            var products = StreamSupport
-                    .stream(productRepository.findAll().spliterator(), false)
-                    .map(product -> {
-                        try {
-                            return toProduct(product);
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
-                    .toList();
-            return new APIResponseDecorator<List<Product>>().onSuccess(products);
-        } catch (RuntimeException e) {
-            if (e.getCause() instanceof Exception) {
-                throw (Exception) e.getCause();
-            } else {
-                throw e;
-            }
+    public List<Product> getAllProducts() {
+        return StreamSupport
+                .stream(
+                        productRepository
+                                .findAll()
+                                .spliterator(), false
+                )
+                .map(product -> toProduct(product, getAvailableQuantityOrZero(product.getPid())))
+                .toList();
+    }
+
+    @SuppressWarnings("unused")
+    private void checkAvailableQuantityOrThrow(ProductEntity entity) throws Exception {
+        var quantityResponse = inventoryRepository.findById(entity.getPid());
+        if (quantityResponse.isEmpty()) {
+            throw new ErrorMessage()
+                    .setMessage("failed to fetch details")
+                    .setCauses("Product with id" + entity.getPid() + " is not found in Inventory")
+                    .setSource("ProductListService::checkAvailableQuantityOrThrow")
+                    .toException();
         }
+    }
+
+    private int getAvailableQuantityOrZero(String id) {
+        var quantityResponse = inventoryRepository.findById(id);
+        return quantityResponse.map(InventoryEntity::getQuantity).orElse(0);
     }
 
     /**
@@ -69,19 +96,14 @@ public class ProductListService {
      *  <li>{@link Product} will directly convert to JSON in client side</li>
      * </ul>
      */
-
-
-    private Product toProduct(ProductEntity product) throws Exception {
-        var quantityResponse = inventoryRepository.findById(product.getPid());
-        if (quantityResponse.isEmpty())
-            throw new Exception("Product with id " + product.getPid() + " not found");
+    private Product toProduct(ProductEntity product, int availableQuantity) {
         return new Product(
                 product.getPid(),
                 product.getName(),
                 List.of(product.getImageLink()),
                 product.getPrice(),
                 product.getDescription(),
-                quantityResponse.get().getQuantity()
+                availableQuantity
         );
     }
 }

@@ -1,13 +1,12 @@
 package com.kzcse.springboot.product.data.service;
 
-import com.kzcse.springboot.common.APIResponseDecorator;
 import com.kzcse.springboot.common.ErrorMessage;
-import com.kzcse.springboot.common.ErrorMessageException;
 import com.kzcse.springboot.discount.data.entity.DiscountByPriceEntity;
 import com.kzcse.springboot.discount.data.repository.DiscountByPriceRepository;
 import com.kzcse.springboot.discount.data.repository.DiscountByProductRepository;
 import com.kzcse.springboot.product.data.entity.ProductEntity;
 import com.kzcse.springboot.product.data.repository.ProductRepository;
+import com.kzcse.springboot.product.domain.ProductFactory;
 import com.kzcse.springboot.product.domain.model.response_model.ProductDetailsResponse;
 import com.kzcse.springboot.product.domain.ProductDetailsModelBuilder;
 import com.kzcse.springboot.product.domain.model.response_model.ProductOfferResponse;
@@ -29,12 +28,14 @@ public class ProductDetailsService {
     private final ProductRepository productRepository;
     private final DiscountByProductRepository discountByProductRepository;
     private final DiscountByPriceRepository discountByPriceRepository;
+    private final ProductFactory productFactory;
 
-    public ProductDetailsService(ProductRepository productRepository, DiscountByProductRepository discountByProductRepository, DiscountByPriceRepository discountByPriceRepository) {
+    public ProductDetailsService(ProductRepository productRepository, DiscountByProductRepository discountByProductRepository, DiscountByPriceRepository discountByPriceRepository, ProductFactory productFactory) {
         this.productRepository = productRepository;
         this.discountByProductRepository = discountByProductRepository;
         this.discountByPriceRepository = discountByPriceRepository;
 
+        this.productFactory = productFactory;
     }
 
     /**
@@ -46,12 +47,15 @@ public class ProductDetailsService {
      * </ul>
      */
     public ProductDetailsResponse fetchDetailsOrThrows(String productId) throws Exception {
+
+        productFactory.createProductAbsentUseCase().throwIfNotExit(productId);
+
         var builder = new ProductDetailsModelBuilder(productId);
         var productResponse = productRepository.findById(productId);
         if (productResponse.isEmpty()) {
             throw new ErrorMessage()
                     .setMessage("failed to fetch details")
-                    .setCauses("Product with id" + productId + " is not found or failed to read")
+                    .setCauses("Product with id" + productId + " is failed to read")
                     .setSource("ProductDetailsService::fetchDetailsOrThrows")
                     .toException();
         }

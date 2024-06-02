@@ -2,6 +2,8 @@ package com.kzcse.springboot.auth.data.service;
 
 import com.kzcse.springboot.auth.data.entity.UserEntity;
 import com.kzcse.springboot.auth.data.repository.UserRepository;
+import com.kzcse.springboot.auth.domain.AuthFactory;
+import com.kzcse.springboot.auth.domain.usecase.UserExistenceUseCase;
 import com.kzcse.springboot.common.ErrorMessage;
 import org.springframework.stereotype.Service;
 
@@ -11,18 +13,13 @@ import java.util.stream.StreamSupport;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final AuthFactory factory;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, AuthFactory factory) {
         this.userRepository = userRepository;
+        this.factory = factory;
     }
 
-    public boolean doesExit(String email) {
-        return userRepository.existsById(email);
-    }
-
-    public boolean doesNotExit(String email) {
-        return !userRepository.existsById(email);
-    }
 
     public List<UserEntity> getAllUser() {
         return
@@ -37,13 +34,16 @@ public class UserService {
 
     public void addUserOrThrow(UserEntity user) throws Exception {
         // createTableIfNotPresent(user);
-        checkUserExitsOrThrow(user.getEmail()); // throw Exception if table is  exits'
-         addToDBOrThrow(user);
+        throwIfUserExits(user.getEmail());
+        addToDBOrThrow(user);
+    }
+    private void throwIfUserExits(String email) throws  Exception{
+        factory.createUserExistenceUseCase().throwOnUserExit(email);
     }
 
     private void createTableIfNotPresent(UserEntity user) {
         try {
-            checkUserExitsOrThrow(user.getEmail());
+            new UserExistenceUseCase(userRepository).throwOnUserExit(user.getEmail());
         } catch (Exception e) {
 
             System.out.println(e);
@@ -51,7 +51,7 @@ public class UserService {
 
     }
 
-    private boolean addToDBOrThrow(UserEntity user) throws Exception {
+    private void addToDBOrThrow(UserEntity user) throws Exception {
         var response = userRepository.save(user);
         var isNotAdded = !(user.equals(response));
         System.out.println(response);
@@ -59,17 +59,10 @@ public class UserService {
             throw new ErrorMessage()
                     .setMessage(user.getEmail() + " failed to add")
                     .setCauses("did not added to database")
-                    .setSource("UserService::addToDBOrThrow")
+                    .setSource(this.getClass().getSimpleName() + "::addToDBOrThrow")
                     .toException();
         }
-        return true;
     }
 
-    private void checkUserExitsOrThrow(String email) throws Exception {
-        if (doesExit(email)) {
-            throw new Exception("user with email " + email + " already exits");
-        }
-
-    }
 
 }

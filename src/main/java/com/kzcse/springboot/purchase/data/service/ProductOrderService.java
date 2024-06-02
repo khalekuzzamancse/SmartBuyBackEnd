@@ -1,6 +1,7 @@
 package com.kzcse.springboot.purchase.data.service;
 
 import com.kzcse.springboot.auth.data.service.UserService;
+import com.kzcse.springboot.auth.domain.AuthFactory;
 import com.kzcse.springboot.common.ErrorMessage;
 import com.kzcse.springboot.discount.data.repository.DiscountByProductRepository;
 import com.kzcse.springboot.inventory.data.InventoryRepository;
@@ -19,14 +20,16 @@ public class ProductOrderService {
     private final DiscountByProductRepository discountByProductRepository;
     private final PurchasedProductRepository purchasedProductRepository;
     private final UserService userService;
+    private final AuthFactory authFactory;
 
 
-    public ProductOrderService(ProductRepository productRepository, InventoryRepository inventoryRepository, DiscountByProductRepository discountByProductRepository, PurchasedProductRepository purchasedProductRepository, UserService userService) {
+    public ProductOrderService(ProductRepository productRepository, InventoryRepository inventoryRepository, DiscountByProductRepository discountByProductRepository, PurchasedProductRepository purchasedProductRepository, UserService userService, AuthFactory authFactory) {
         this.productRepository = productRepository;
         this.inventoryRepository = inventoryRepository;
         this.discountByProductRepository = discountByProductRepository;
         this.purchasedProductRepository = purchasedProductRepository;
         this.userService = userService;
+        this.authFactory = authFactory;
     }
 
     public void orderConfirmOrThrow(OrderRequest request) throws Exception {
@@ -55,7 +58,7 @@ public class ProductOrderService {
 
             subtractProductQuantityFromDBOrThrow(item.getProductId(), item.getQuantity());
             if (takenDiscountId != null) {
-                System.out.println("YEST");
+
                 var discount = discountByProductRepository.findById(takenDiscountId).orElse(null);
                 if (discount != null) {
                     var childId = discount.getChildId();
@@ -68,14 +71,7 @@ public class ProductOrderService {
     }
 
     private void throwIfUserDoesNotExit(String userId) throws Exception {
-        if (userService.doesNotExit(userId)) {
-            throw new ErrorMessage()
-                    .setMessage("failed")
-                    .setCauses("User does not Exits")
-                    .setSource("ProductOrderService::throwIfUserDoesNotExit")
-                    .toException();
-        }
-
+        authFactory.createUserAbsenceUseCase().throwIfNoExits(userId);
     }
 
     private void subtractProductQuantityFromDBOrThrow(String productId, int amountToSubtract) throws Exception {

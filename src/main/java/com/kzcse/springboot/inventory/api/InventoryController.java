@@ -3,8 +3,6 @@ package com.kzcse.springboot.inventory.api;
 import com.kzcse.springboot.common.APIResponseDecorator;
 import com.kzcse.springboot.inventory.data.InventoryEntity;
 import com.kzcse.springboot.inventory.data.InventoryService;
-import com.kzcse.springboot.product.domain.Product;
-import com.kzcse.springboot.product.domain.model.response_model.ProductDetailsResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,13 +37,13 @@ public class InventoryController {
 
     @PostMapping("/update")
     @ResponseStatus(HttpStatus.CREATED) // response code for success
-    public ResponseEntity<Void> addProducts(@RequestBody List<InventoryEntity> entities) {
+    public APIResponseDecorator<String> add(@RequestBody List<InventoryEntity> entities) {
         try {
             service.updateInventoryOrThrow(entities);
-            return ResponseEntity.ok().build();
+            return new APIResponseDecorator<String>().onSuccess("Success");
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.internalServerError().build();
+            return new APIResponseDecorator<String>().withException(e, "Failed", this.getClass().getSimpleName());
+
         }
 
     }

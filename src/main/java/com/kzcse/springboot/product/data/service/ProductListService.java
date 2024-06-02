@@ -72,7 +72,7 @@ public class ProductListService {
     }
 
     @SuppressWarnings("unused")
-    private void checkAvailableQuantityOrThrow(ProductEntity entity) throws Exception {
+    public void checkAvailableQuantityOrThrow(ProductEntity entity) throws Exception {
         var quantityResponse = inventoryRepository.findById(entity.getPid());
         if (quantityResponse.isEmpty()) {
             throw new ErrorMessage()

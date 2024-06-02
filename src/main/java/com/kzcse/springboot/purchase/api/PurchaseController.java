@@ -2,7 +2,7 @@ package com.kzcse.springboot.purchase.api;
 
 import com.kzcse.springboot.common.APIResponseDecorator;
 import com.kzcse.springboot.purchase.data.service.ProductOrderService;
-import com.kzcse.springboot.purchase.data.service.PurchasedProductService;
+import com.kzcse.springboot.purchase.data.service.PurchasedHistoryService;
 import com.kzcse.springboot.purchase.domain.request_model.OrderRequest;
 import com.kzcse.springboot.purchase.domain.response_model.PurchasedProductResponse;
 import com.kzcse.springboot.product.data.repository.ProductRepository;
@@ -18,12 +18,12 @@ import java.util.NoSuchElementException;
 public class PurchaseController {
     private final ProductRepository productRepository;
     private final ProductOrderService productOrderService;
-    private final PurchasedProductService purchasedProductService;
+    private final PurchasedHistoryService purchasedHistoryService;
 
-    public PurchaseController(ProductRepository productRepository, ProductOrderService productOrderService, PurchasedProductService purchasedProductService) {
+    public PurchaseController(ProductRepository productRepository, ProductOrderService productOrderService, PurchasedHistoryService purchasedHistoryService) {
         this.productRepository = productRepository;
         this.productOrderService = productOrderService;
-        this.purchasedProductService = purchasedProductService;
+        this.purchasedHistoryService = purchasedHistoryService;
     }
 
     // Error handling
@@ -62,7 +62,7 @@ public class PurchaseController {
     public APIResponseDecorator<List<PurchasedProductResponse>> getProduct(@PathVariable String userId) {
         try {
             return new APIResponseDecorator<List<PurchasedProductResponse>>()
-                    .onSuccess(purchasedProductService.getPurchasedProductOrThrow(userId));
+                    .onSuccess(purchasedHistoryService.getPurchasedProductOrThrow(userId));
         } catch (Exception e) {
             return new APIResponseDecorator<List<PurchasedProductResponse>>().withException(e,"failed","PurchaseController::getProduct");
         }

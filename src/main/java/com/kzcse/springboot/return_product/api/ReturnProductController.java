@@ -1,12 +1,11 @@
 package com.kzcse.springboot.return_product.api;
 
-import com.kzcse.springboot.discount.data.repository.DiscountByProductRepository;
+import com.kzcse.springboot.common.APIResponseDecorator;
 import com.kzcse.springboot.inventory.data.InventoryRepository;
-import com.kzcse.springboot.purchase.data.repositoy.PurchasedProductRepository;
 import com.kzcse.springboot.return_product.data.entiry.ReturningPendingEntity;
 import com.kzcse.springboot.return_product.data.repository.ReturnProductRepository;
+import com.kzcse.springboot.return_product.data.service.ProductReturnService;
 import com.kzcse.springboot.return_product.domain.ReturnRequest;
-import com.kzcse.springboot.return_product.domain.ProductReturnResponseModel;
 import com.kzcse.springboot.return_product.domain.ReturningPendingProductModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,15 +19,13 @@ import java.util.stream.StreamSupport;
 @RequestMapping("/api/product/return")
 public class ReturnProductController {
     private final InventoryRepository inventoryRepository;
-    private final DiscountByProductRepository discountByProductRepository;
-    private final PurchasedProductRepository purchasedProductRepository;
     private final ReturnProductRepository returnProductRepository;
+    private final ProductReturnService productReturnService;
 
-    public ReturnProductController(InventoryRepository inventoryRepository, DiscountByProductRepository discountByProductRepository, PurchasedProductRepository purchasedProductRepository, ReturnProductRepository returnProductRepository) {
+    public ReturnProductController(InventoryRepository inventoryRepository, ReturnProductRepository returnProductRepository, ProductReturnService productReturnService) {
         this.inventoryRepository = inventoryRepository;
-        this.discountByProductRepository = discountByProductRepository;
-        this.purchasedProductRepository = purchasedProductRepository;
         this.returnProductRepository = returnProductRepository;
+        this.productReturnService = productReturnService;
     }
 
     // Error handling
@@ -39,51 +36,11 @@ public class ReturnProductController {
 
     @PostMapping("/request")
     @ResponseStatus(HttpStatus.CREATED) // response code for success
-    public ProductReturnResponseModel returnRequest(@RequestBody ReturnRequest request) {
+    public APIResponseDecorator<String> returnRequest(@RequestBody ReturnRequest request) {
         try {
-            var purchasedProduct = purchasedProductRepository.findById(request.getPurchaseId()).orElse(null);
-            assert purchasedProduct != null;
-            var productId = purchasedProduct.getProductId();
-            var discountId = purchasedProduct.getDiscountId();
-            var wasDiscount = discountId != null;
-            if (wasDiscount) {
-                var itemAfterReturn = purchasedProduct.getQuantity() - request.getReturnQuantity();
-                var discount = discountByProductRepository.findById(discountId).orElse(null);
-                assert discount != null;
-                var noMoreEligibleForDiscount = itemAfterReturn < discount.getRequiredParentQuantity();
-                if (noMoreEligibleForDiscount) {
-                    var offeredProductAmount = discount.getFreeChildQuantity();
-                    var offeredProductId = discount.getChildId();
-
-                    //save to database
-                    returnProductRepository.save(
-                            new ReturningPendingEntity(
-                                    request.getPurchaseId(),
-                                    productId,
-                                    offeredProductId,
-                                    request.getReturnQuantity(),
-                                    offeredProductAmount)
-                    );
-
-                    return new ProductReturnResponseModel(
-                            "You have to return " +request.getReturnQuantity()+"+"+ offeredProductAmount+"(free) product(s) "
-                    );
-                }
-
-            }
-            //save to database
-            returnProductRepository.save(
-                    new ReturningPendingEntity(
-                            request.getPurchaseId(),
-                            productId,
-                            null,
-                            request.getReturnQuantity(),
-                            0)
-            );
-            return new ProductReturnResponseModel("You have to return " + request.getReturnQuantity() + " product(s)");
+            return new APIResponseDecorator<String>().onSuccess(productReturnService.createReturnRequestOrThrow(request).getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
-            return   new ProductReturnResponseModel("Failed to request:SERVER_ERROR");
+            return new APIResponseDecorator<String>().withException(e, "Request failed", this.getClass().getSimpleName());
         }
 
     }

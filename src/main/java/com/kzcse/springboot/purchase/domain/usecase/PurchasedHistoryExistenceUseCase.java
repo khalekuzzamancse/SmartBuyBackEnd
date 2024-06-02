@@ -11,7 +11,7 @@ public class PurchasedHistoryExistenceUseCase {
         this.purchasedProductRepository = purchasedProductRepository;
     }
 
-    public PurchasedProductEntity throwIfDoesNotExits(String purchasedId) throws Exception {
+    public PurchasedProductEntity getOrThrow(String purchasedId) throws Exception {
         var response = purchasedProductRepository.findById(purchasedId);
         if (response.isEmpty()) {
             throw new ErrorMessage()

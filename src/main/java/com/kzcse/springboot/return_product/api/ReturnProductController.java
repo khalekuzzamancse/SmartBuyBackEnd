@@ -47,11 +47,19 @@ public class ReturnProductController {
 
     // Get all products
     @GetMapping("/pending")
-    public List<ReturningPendingProductModel> getProducts() {
-        return StreamSupport
-                .stream(returnProductRepository.findAll().spliterator(), false)
-                .map(this::toModel)
-                .toList();
+    public APIResponseDecorator<List<ReturningPendingProductModel>> getProducts() {
+        try {
+            return new APIResponseDecorator<List<ReturningPendingProductModel>>()
+                    .onSuccess(StreamSupport
+                            .stream(returnProductRepository.findAll().spliterator(), false)
+                            .map(this::toModel)
+                            .toList());
+        } catch (Exception e) {
+            return new APIResponseDecorator<List<ReturningPendingProductModel>>()
+                    .withException(e, "Failed", getClass().getSimpleName());
+
+        }
+
     }
 
 

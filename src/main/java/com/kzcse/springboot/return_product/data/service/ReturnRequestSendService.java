@@ -114,7 +114,7 @@ public class ReturnRequestSendService {
 
 
     private PurchasedProductEntity getPurchasedHistoryOrThrow(String purchasedId) throws Exception {
-        return purchasedFactory.createHistoryUseCase().throwIfDoesNotExits(purchasedId);
+        return purchasedFactory.createHistoryExistenceUseCase().getOrThrow(purchasedId);
     }
 
     private void throwIfInvalidReturnAmount(int purchasedAmount, int returnAmount) throws Exception {

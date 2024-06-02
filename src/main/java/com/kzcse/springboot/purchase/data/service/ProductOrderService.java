@@ -71,7 +71,7 @@ public class ProductOrderService {
     }
 
     private void throwIfUserDoesNotExit(String userId) throws Exception {
-        authFactory.createUserAbsenceUseCase().throwIfNoExits(userId);
+        authFactory.createUserAbsenceUseCase().throwIfNotExits(userId);
     }
 
     private void subtractProductQuantityFromDBOrThrow(String productId, int amountToSubtract) throws Exception {

@@ -6,8 +6,8 @@ import com.kzcse.springboot.common.ErrorMessage;
 import com.kzcse.springboot.discount.data.entity.DiscountByProductEntity;
 import com.kzcse.springboot.discount.data.repository.DiscountByProductRepository;
 import com.kzcse.springboot.purchase.data.entity.PurchasedProductEntity;
-import com.kzcse.springboot.purchase.data.repositoy.PurchasedProductRepository;
-import com.kzcse.springboot.return_product.data.entiry.ReturningPendingEntity;
+import com.kzcse.springboot.purchase.domain.PurchasedFactory;
+import com.kzcse.springboot.return_product.data.entiry.PendingReturnProduct;
 import com.kzcse.springboot.return_product.data.repository.ReturnProductRepository;
 import com.kzcse.springboot.return_product.domain.ProductReturnResponseModel;
 import com.kzcse.springboot.return_product.domain.ReturnRequest;
@@ -15,15 +15,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @Service
-public class ProductReturnService {
+public class ReturnRequestSendService {
     private final DiscountByProductRepository discountByProductRepository;
-    private final PurchasedProductRepository purchasedProductRepository;
     private final ReturnProductRepository returnProductRepository;
+    private final PurchasedFactory purchasedFactory;
 
-    public ProductReturnService(DiscountByProductRepository discountByProductRepository, PurchasedProductRepository purchasedProductRepository, ReturnProductRepository returnProductRepository) {
+    public ReturnRequestSendService(DiscountByProductRepository discountByProductRepository, ReturnProductRepository returnProductRepository, PurchasedFactory purchasedFactory) {
         this.discountByProductRepository = discountByProductRepository;
-        this.purchasedProductRepository = purchasedProductRepository;
         this.returnProductRepository = returnProductRepository;
+        this.purchasedFactory = purchasedFactory;
     }
 
     public ProductReturnResponseModel createReturnRequestOrThrow(@RequestBody ReturnRequest request) throws Exception {
@@ -79,10 +79,10 @@ public class ProductReturnService {
             int returningAmount,
             int offeredProductAmount
     ) throws Exception {
-        var entity = new ReturningPendingEntity(purchasedId, productId, offeredProductId, returningAmount, offeredProductAmount);
+        var entity = new PendingReturnProduct(purchasedId, productId, offeredProductId, returningAmount, offeredProductAmount);
         var res = returnProductRepository.save(entity);
 
-        //make sure ReturningPendingEntity has override the equal and hashcode
+        //TODO:make sure ReturningPendingEntity has override the equal and hashcode
         var notSaved = !(res.equals(entity));
         if (notSaved) {
             throw new ErrorMessage()
@@ -108,14 +108,6 @@ public class ProductReturnService {
     }
 
     private PurchasedProductEntity getPurchasedHistoryOrThrow(String purchasedId) throws Exception {
-        var response = purchasedProductRepository.findById(purchasedId);
-        if (response.isEmpty()) {
-            throw new ErrorMessage()
-                    .setMessage("Purchase history  with id=" + purchasedId + " does not exits")
-                    .setCauses("Not Found in database")
-                    .setSource(this.getClass().getSimpleName() + "::getPurchasedHistoryOrThrow")
-                    .toException();
-        }
-        return response.get();
+      return  purchasedFactory.createHistoryUseCase().throwIfDoesNotExits(purchasedId);
     }
 }

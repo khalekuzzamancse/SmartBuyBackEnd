@@ -13,7 +13,7 @@ public class UserAbsentUseCase {
         this.repository = repository;
     }
 
-    public void throwIfNoExits(String email) throws Exception {
+    public void throwIfNotExits(String email) throws Exception {
         var doesNotExits = !(repository.existsById(email));
         if (doesNotExits) {
             throw new ErrorMessage()

@@ -23,7 +23,7 @@ public class PurchasedHistoryService {
     }
 
     public List<PurchasedProductResponse> getPurchasedProductOrThrow(@PathVariable String userId) throws Exception {
-        authFactory.createUserAbsenceUseCase().throwIfNoExits(userId);
+        authFactory.createUserAbsenceUseCase().throwIfNotExits(userId);
 
         List<PurchasedProductResponse> responses = new java.util.ArrayList<>(List.of());
 

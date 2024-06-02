@@ -1,10 +1,10 @@
 package com.kzcse.springboot.return_product.api;
 
 import com.kzcse.springboot.common.APIResponseDecorator;
-import com.kzcse.springboot.inventory.data.InventoryRepository;
-import com.kzcse.springboot.return_product.data.entiry.ReturningPendingEntity;
+import com.kzcse.springboot.return_product.data.entiry.PendingReturnProduct;
 import com.kzcse.springboot.return_product.data.repository.ReturnProductRepository;
-import com.kzcse.springboot.return_product.data.service.ProductReturnService;
+import com.kzcse.springboot.return_product.data.service.ReturnRequestAcceptService;
+import com.kzcse.springboot.return_product.data.service.ReturnRequestSendService;
 import com.kzcse.springboot.return_product.domain.ReturnRequest;
 import com.kzcse.springboot.return_product.domain.ReturningPendingProductModel;
 import org.springframework.http.HttpStatus;
@@ -18,14 +18,14 @@ import java.util.stream.StreamSupport;
 @RestController
 @RequestMapping("/api/product/return")
 public class ReturnProductController {
-    private final InventoryRepository inventoryRepository;
     private final ReturnProductRepository returnProductRepository;
-    private final ProductReturnService productReturnService;
+    private final ReturnRequestSendService returnRequestSendService;
+    private final ReturnRequestAcceptService returnRequestAcceptService;
 
-    public ReturnProductController(InventoryRepository inventoryRepository, ReturnProductRepository returnProductRepository, ProductReturnService productReturnService) {
-        this.inventoryRepository = inventoryRepository;
+    public ReturnProductController(ReturnProductRepository returnProductRepository, ReturnRequestSendService returnRequestSendService, ReturnRequestAcceptService returnRequestAcceptService) {
         this.returnProductRepository = returnProductRepository;
-        this.productReturnService = productReturnService;
+        this.returnRequestSendService = returnRequestSendService;
+        this.returnRequestAcceptService = returnRequestAcceptService;
     }
 
     // Error handling
@@ -38,7 +38,7 @@ public class ReturnProductController {
     @ResponseStatus(HttpStatus.CREATED) // response code for success
     public APIResponseDecorator<String> returnRequest(@RequestBody ReturnRequest request) {
         try {
-            return new APIResponseDecorator<String>().onSuccess(productReturnService.createReturnRequestOrThrow(request).getMessage());
+            return new APIResponseDecorator<String>().onSuccess(returnRequestSendService.createReturnRequestOrThrow(request).getMessage());
         } catch (Exception e) {
             return new APIResponseDecorator<String>().withException(e, "Request failed", this.getClass().getSimpleName());
         }
@@ -55,27 +55,21 @@ public class ReturnProductController {
     }
 
 
-    @PostMapping("/confirm/{id}")
+    @PostMapping("/confirm/{purchaseId}")
     @ResponseStatus(HttpStatus.CREATED) // response code for success
-    public boolean returnItem(@PathVariable String id) {
+    public APIResponseDecorator<String> returnItem(@PathVariable String purchaseId) {
         try {
-            var entity = returnProductRepository.findById(id).orElse(null);
-            if (entity != null) {
-                inventoryRepository.addQuantity(entity.getPurchasedProductId(), entity.getReturnQuantity());
-                if (entity.getFreeProductId() != null) {
-                    inventoryRepository.addQuantity(entity.getFreeProductId(), entity.getFreeItemQuantity());
-                }
-            }
-            return true;
+            returnRequestAcceptService.acceptRequestOrThrow(purchaseId);
+            return new APIResponseDecorator<String>().onSuccess("Success");
+
         } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+            return new APIResponseDecorator<String>().withException(e, "Failed", this.getClass().getSimpleName());
         }
 
     }
 
-    private ReturningPendingProductModel toModel(ReturningPendingEntity entity) {
-        return new ReturningPendingProductModel(entity.getId(), entity.getFreeProductId(), entity.getReturnQuantity(), entity.getFreeItemQuantity());
+    private ReturningPendingProductModel toModel(PendingReturnProduct entity) {
+        return new ReturningPendingProductModel(entity.getId(), entity.getBonusProductId(), entity.getMainProductReturnQuantity(), entity.getBonusReturnQuantity());
     }
 
 

@@ -35,8 +35,11 @@ public class ReturnRequestAcceptService {
 
         //add main product return amount to DB
         addToDBOrThrow(mainProductId, returnAmountOfMainProduct);
-        //add bonus product return amount to DB
-        addToDBOrThrow(bonusProductId, returnAmountOfBonusProduct);
+        //TODO:add bonus product return amount to DB,bonusId=NuLL when no discount
+        if (bonusProductId!=null){
+            addToDBOrThrow(bonusProductId, returnAmountOfBonusProduct);
+        }
+
 
         //update the purchase history
         updatePurchaseHistory(purchaseId, mainProductId, returnAmountOfMainProduct);

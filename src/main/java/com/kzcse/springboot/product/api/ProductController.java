@@ -47,6 +47,7 @@ public class ProductController {
             productListService.addProductsOrThrow(entities);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
+
             return ResponseEntity.internalServerError().build();
         }
 
@@ -81,6 +82,7 @@ public class ProductController {
             return new APIResponseDecorator<ProductDetailsResponse>().onSuccess(response);
 
         } catch (Exception e) {
+
             return new APIResponseDecorator<ProductDetailsResponse>()
                     .withException(e, "Failed to add addDiscount By Price", "DiscountController::addDiscountByPrice");
 

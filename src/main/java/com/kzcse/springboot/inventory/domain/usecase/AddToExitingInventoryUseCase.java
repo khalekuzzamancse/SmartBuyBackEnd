@@ -13,14 +13,14 @@ public class AddToExitingInventoryUseCase {
         this.repository = repository;
     }
     public void addOrThrow(String productId,int amount) throws Exception{
-
+        throwIfProductDoesNotExits(productId);
 
         var updatedRow=repository.addQuantity(productId,amount);
         var isFailed=!(updatedRow>0);
         if (isFailed){
             throw new ErrorMessage()
-                    .setMessage("Failed")
-                    .setCauses("Failed to add "+productId+" with amount="+amount+" in the Inventory table in database")
+                    .setMessage("Failed with productId="+productId+ " with amount="+amount)
+                    .setCauses("No Row updated in the database")
                     .setSource(this.getClass().getSimpleName())
                     .toException();
         }

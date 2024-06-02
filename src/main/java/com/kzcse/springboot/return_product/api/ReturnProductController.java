@@ -71,6 +71,7 @@ public class ReturnProductController {
             return new APIResponseDecorator<String>().onSuccess("Success");
 
         } catch (Exception e) {
+            e.printStackTrace();
             return new APIResponseDecorator<String>().withException(e, "Failed", this.getClass().getSimpleName());
         }
 

@@ -105,26 +105,7 @@ public class ProductOrderConfirmService {
     }
 
     private void throwIfInvalidQuantity(String productId, int desiredPurchaseAmount) throws Exception {
-        var entity = inventoryFactory.createGetInventoryUseCase().getOrThrow(productId);
-        var availableAmount = entity.getQuantity();
-        var productName = productFactory.createProductFinderUseCase().fetchOrThrow(productId).getName();
-        var isInventoryExceed = (desiredPurchaseAmount > availableAmount);
-        if (isInventoryExceed) {
-            throw new ErrorMessage()
-                    .setMessage("failed")
-                    .setCauses(String.format("The requested quantity for product (name=%s, id=%s) exceeds the available stock of %d", productName, productId, availableAmount))
-                    .setSource(this.getClass().getSimpleName())
-                    .toException();
-
-        }
-        if (desiredPurchaseAmount <= 0) {
-            throw new ErrorMessage()
-                    .setMessage("failed")
-                    .setCauses(String.format("The requested quantity for product (name=%s, id=%s) can not be less than 1", productName, productId))
-                    .setSource(this.getClass().getSimpleName())
-                    .toException();
-        }
-
+        inventoryFactory.createValidator().validateOrThrow(productId,desiredPurchaseAmount);
 
     }
 

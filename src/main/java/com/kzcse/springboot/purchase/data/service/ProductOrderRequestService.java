@@ -2,6 +2,7 @@ package com.kzcse.springboot.purchase.data.service;
 
 import com.kzcse.springboot.purchase.domain.PurchasedFactory;
 import com.kzcse.springboot.purchase.domain.request_model.OrderRequest;
+import com.kzcse.springboot.purchase.domain.response_model.OrderBillResponse;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,9 +14,8 @@ public class ProductOrderRequestService {
         this.purchasedFactory = purchasedFactory;
     }
 
-    public String processRequestOrThrow(OrderRequest request) throws Exception {
-        var total = purchasedFactory.createPurchaserBillGenerateUserCase().generateBillOrThrow(request);
-        return String.format("Have to pay:%d", total);
+    public OrderBillResponse processRequestOrThrow(OrderRequest request) throws Exception {
+       return purchasedFactory.createPurchaserBillGenerateUserCase().generateBillOrThrow(request);
     }
 
 

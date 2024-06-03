@@ -5,6 +5,7 @@ import com.kzcse.springboot.purchase.data.service.ProductOrderConfirmService;
 import com.kzcse.springboot.purchase.data.service.ProductOrderRequestService;
 import com.kzcse.springboot.purchase.data.service.PurchasedHistoryService;
 import com.kzcse.springboot.purchase.domain.request_model.OrderRequest;
+import com.kzcse.springboot.purchase.domain.response_model.OrderBillResponse;
 import com.kzcse.springboot.purchase.domain.response_model.PurchasedProductResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,13 +37,13 @@ public class PurchaseController {
 
     @PostMapping("/request")
     @ResponseStatus(HttpStatus.CREATED) // response code for success
-    public APIResponseDecorator<String> orderRequest(@RequestBody OrderRequest request) {
+    public APIResponseDecorator<OrderBillResponse> orderRequest(@RequestBody OrderRequest request) {
         try {
-            return new APIResponseDecorator<String>().onSuccess(orderRequestService.processRequestOrThrow(request));
+            return new APIResponseDecorator<OrderBillResponse>().onSuccess(orderRequestService.processRequestOrThrow(request));
 
         }
         catch (Exception e){
-            return new APIResponseDecorator<String>().withException(e, "failed to purchase", "PurchaseController::orderConfirm");
+            return new APIResponseDecorator<OrderBillResponse>().withException(e, "failed to purchase", "PurchaseController::orderConfirm");
         }
     }
 

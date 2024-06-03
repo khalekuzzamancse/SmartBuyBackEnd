@@ -3,6 +3,7 @@ package com.kzcse.springboot.inventory.domain;
 import com.kzcse.springboot.inventory.data.InventoryRepository;
 import com.kzcse.springboot.inventory.domain.usecase.AddToExitingInventoryUseCase;
 import com.kzcse.springboot.inventory.domain.usecase.GetInventoryUseCase;
+import com.kzcse.springboot.inventory.domain.usecase.InventoryValidateUseCase;
 import com.kzcse.springboot.product.domain.ProductFactory;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +23,9 @@ public class InventoryFactory {
     }
     public GetInventoryUseCase createGetInventoryUseCase(){
         return  new GetInventoryUseCase(productFactory,repository);
+    }
+    public InventoryValidateUseCase createValidator(){
+        return new InventoryValidateUseCase(productFactory,this);
     }
 
 

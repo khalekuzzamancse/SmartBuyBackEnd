@@ -1,6 +1,7 @@
 package com.kzcse.springboot.purchase.domain;
 
 import com.kzcse.springboot.discount.domain.DiscountFactory;
+import com.kzcse.springboot.inventory.domain.InventoryFactory;
 import com.kzcse.springboot.product.domain.ProductFactory;
 import com.kzcse.springboot.purchase.data.repositoy.PurchasedProductRepository;
 import com.kzcse.springboot.purchase.domain.usecase.PurchaseBillGenerateUserCase;
@@ -14,14 +15,16 @@ public class PurchasedFactory {
     private final PurchasedProductRepository repository;
     private final DiscountFactory discountFactory;
     private final ProductFactory productFactory;
+    private final InventoryFactory inventoryFactory;
 
 
 
-    public PurchasedFactory(PurchasedProductRepository repository, DiscountFactory discountFactory, ProductFactory productFactory) {
+    public PurchasedFactory(PurchasedProductRepository repository, DiscountFactory discountFactory, ProductFactory productFactory, InventoryFactory inventoryFactory) {
         this.repository = repository;
 
         this.discountFactory = discountFactory;
         this.productFactory = productFactory;
+        this.inventoryFactory = inventoryFactory;
     }
 
     public PurchasedHistoryExistenceUseCase createHistoryExistenceUseCase() {
@@ -33,6 +36,6 @@ public class PurchasedFactory {
     }
     public PurchaseHistoryUpdaterUseCase purchaseHistoryUpdaterUseCase(){return  new PurchaseHistoryUpdaterUseCase(this,repository);}
     public PurchaseBillGenerateUserCase createPurchaserBillGenerateUserCase(){
-        return  new PurchaseBillGenerateUserCase(productFactory,discountFactory);
+        return  new PurchaseBillGenerateUserCase(productFactory,discountFactory,inventoryFactory);
     }
 }

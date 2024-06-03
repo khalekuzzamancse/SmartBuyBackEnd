@@ -1,19 +1,20 @@
 package com.kzcse.springboot.purchase.domain.response_model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode
+@ToString
 public class OrderResponse {
-    private int totalPrice;
-    private String coupon;
+    private String productId;
+    private String productName;
+    private int unitPrice;
+    private int quantity;
     private int discount;
-    private String requestId;
-    public  OrderResponse(int totalPrice){
-        this.totalPrice=totalPrice;
-        this.requestId="randomid";//used so that client does not give a null key
-    }
+    private int originalPrice;
+    private int discountedPrice;
+
 }

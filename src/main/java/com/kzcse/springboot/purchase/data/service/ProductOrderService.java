@@ -5,7 +5,9 @@ import com.kzcse.springboot.auth.domain.AuthFactory;
 import com.kzcse.springboot.common.ErrorMessage;
 import com.kzcse.springboot.discount.data.repository.DiscountByProductRepository;
 import com.kzcse.springboot.inventory.data.InventoryRepository;
+import com.kzcse.springboot.inventory.domain.InventoryFactory;
 import com.kzcse.springboot.product.data.repository.ProductRepository;
+import com.kzcse.springboot.product.domain.ProductFactory;
 import com.kzcse.springboot.purchase.data.entity.PurchasedProductEntity;
 import com.kzcse.springboot.purchase.data.repositoy.PurchasedProductRepository;
 import com.kzcse.springboot.purchase.domain.request_model.OrderRequest;
@@ -19,22 +21,26 @@ public class ProductOrderService {
     private final InventoryRepository inventoryRepository;
     private final DiscountByProductRepository discountByProductRepository;
     private final PurchasedProductRepository purchasedProductRepository;
-    private final UserService userService;
     private final AuthFactory authFactory;
+    private final InventoryFactory inventoryFactory;
+    private final ProductFactory productFactory;
 
 
-    public ProductOrderService(ProductRepository productRepository, InventoryRepository inventoryRepository, DiscountByProductRepository discountByProductRepository, PurchasedProductRepository purchasedProductRepository, UserService userService, AuthFactory authFactory) {
+    public ProductOrderService(ProductRepository productRepository, InventoryRepository inventoryRepository, DiscountByProductRepository discountByProductRepository, PurchasedProductRepository purchasedProductRepository, UserService userService, AuthFactory authFactory, InventoryFactory inventoryFactory, ProductFactory productFactory) {
         this.productRepository = productRepository;
         this.inventoryRepository = inventoryRepository;
         this.discountByProductRepository = discountByProductRepository;
         this.purchasedProductRepository = purchasedProductRepository;
-        this.userService = userService;
         this.authFactory = authFactory;
+        this.inventoryFactory = inventoryFactory;
+        this.productFactory = productFactory;
     }
 
     public void orderConfirmOrThrow(OrderRequest request) throws Exception {
         throwIfUserDoesNotExit(request.getUserId());
         throwIfProductDoesNotExits(request);
+        throwIfAnyInvalidQuantity(request);
+
 
         for (var item : request.getItems()) {
             var purchaseId = item.getProductId() + request.getUserId();
@@ -50,7 +56,7 @@ public class ProductOrderService {
             var isSuccess = (entity.equals(response));
             if (!isSuccess) {
                 throw new ErrorMessage()
-                        .setMessage("Failed; Product"  + item.getProductId() +" has not been purchased")
+                        .setMessage("Failed; Product" + item.getProductId() + " has not been purchased")
                         .setCauses("Failed to save database")
                         .setSource("ProductOrderService::orderConfirmOrThrow")
                         .toException();
@@ -58,7 +64,7 @@ public class ProductOrderService {
 
             subtractProductQuantityFromDBOrThrow(item.getProductId(), item.getQuantity());
 
-            var discountWasGiven=(takenDiscountId != null);
+            var discountWasGiven = (takenDiscountId != null);
 
             if (discountWasGiven) {
 
@@ -73,7 +79,41 @@ public class ProductOrderService {
         }
     }
 
-    private int calculateDiscountAsLinear(int purchased,int minRequired,int bonusOnMin){
+    private void throwIfAnyInvalidQuantity(OrderRequest request) throws Exception {
+        for (var item : request.getItems()) {
+            var productId = item.getProductId();
+            var demandedAmount = item.getQuantity();
+            throwIfInvalidQuantity(productId, demandedAmount);
+        }
+
+    }
+
+    private void throwIfInvalidQuantity(String productId, int desiredPurchaseAmount) throws Exception {
+        var entity = inventoryFactory.createGetInventoryUseCase().getOrThrow(productId);
+        var availableAmount = entity.getQuantity();
+        var productName=productFactory.createProductFinderUseCase().fetchOrThrow(productId).getName();
+        var isInventoryExceed = (desiredPurchaseAmount > availableAmount);
+        if (isInventoryExceed) {
+            throw new ErrorMessage()
+                    .setMessage("failed")
+                    .setCauses(String.format("The requested quantity for product (name=%s, id=%s) exceeds the available stock of %d", productName, productId, availableAmount))
+                    .setSource(this.getClass().getSimpleName())
+                    .toException();
+
+        }
+        if (desiredPurchaseAmount<=0){
+            throw new ErrorMessage()
+                    .setMessage("failed")
+                    .setCauses(String.format("The requested quantity for product (name=%s, id=%s) can not be less than 1", productName, productId))
+                    .setSource(this.getClass().getSimpleName())
+                    .toException();
+        }
+
+
+
+    }
+
+    private int calculateDiscountAsLinear(int purchased, int minRequired, int bonusOnMin) {
         // Calculate the bonus per unit
         double bonusPerUnit = (double) bonusOnMin / minRequired;
         // Calculate the total bonus for the purchased quantity
@@ -90,7 +130,7 @@ public class ProductOrderService {
         if (isNotSuccess) {
             throw new ErrorMessage()
                     .setMessage("failed")
-                    .setCauses("Product with id "+productId+" +did not subtracted from databases,because no row updated in database table")
+                    .setCauses("Product with id " + productId + " +did not subtracted from databases,because no row updated in database table")
                     .setSource("ProductOrderService::subtractProductQuantityFromDBOrThrow")
                     .toException();
 
@@ -100,11 +140,11 @@ public class ProductOrderService {
 
     private void throwIfProductDoesNotExits(OrderRequest request) throws Exception {
         for (var requestModel : request.getItems()) {
-            var productId=requestModel.getProductId();
+            var productId = requestModel.getProductId();
             if (!productRepository.existsById(productId)) {
                 throw new ErrorMessage()
                         .setMessage("failed")
-                        .setCauses("Product with id " +productId+" does not exits")
+                        .setCauses("Product with id " + productId + " does not exits")
                         .setSource("ProductOrderService::throwIfProductDoesNotExits")
                         .toException();
             }

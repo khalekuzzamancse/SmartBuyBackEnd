@@ -45,6 +45,7 @@ public class UserController {
             return new APIResponseDecorator<String>().onSuccess("added successfully");
 
         } catch (Exception e) {
+
             return new APIResponseDecorator<String>().withException(e, "failed", "UserController::addUser");
         }
     }

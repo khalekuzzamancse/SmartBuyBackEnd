@@ -1,11 +1,11 @@
 package com.kzcse.springboot.purchase.api;
 
 import com.kzcse.springboot.common.APIResponseDecorator;
-import com.kzcse.springboot.purchase.data.service.ProductOrderService;
+import com.kzcse.springboot.purchase.data.service.ProductOrderConfirmService;
+import com.kzcse.springboot.purchase.data.service.ProductOrderRequestService;
 import com.kzcse.springboot.purchase.data.service.PurchasedHistoryService;
 import com.kzcse.springboot.purchase.domain.request_model.OrderRequest;
 import com.kzcse.springboot.purchase.domain.response_model.PurchasedProductResponse;
-import com.kzcse.springboot.product.data.repository.ProductRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,14 +16,16 @@ import java.util.NoSuchElementException;
 @RestController
 @RequestMapping("/api/purchase")
 public class PurchaseController {
-    private final ProductRepository productRepository;
-    private final ProductOrderService productOrderService;
+    private final ProductOrderConfirmService orderConfirmService;
     private final PurchasedHistoryService purchasedHistoryService;
+    private final ProductOrderRequestService orderRequestService;
 
-    public PurchaseController(ProductRepository productRepository, ProductOrderService productOrderService, PurchasedHistoryService purchasedHistoryService) {
-        this.productRepository = productRepository;
-        this.productOrderService = productOrderService;
+
+    public PurchaseController(ProductOrderConfirmService orderConfirmService, PurchasedHistoryService purchasedHistoryService, ProductOrderRequestService orderRequestService) {
+        this.orderConfirmService = orderConfirmService;
         this.purchasedHistoryService = purchasedHistoryService;
+
+        this.orderRequestService = orderRequestService;
     }
 
     // Error handling
@@ -32,27 +34,25 @@ public class PurchaseController {
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-//    @PostMapping("/request")
-//    @ResponseStatus(HttpStatus.CREATED) // response code for success
-//    public OrderResponse orderRequest(@RequestBody OrderRequest request) {
-//        AtomicInteger total = new AtomicInteger();
-//        request.getItems().forEach(item -> {
-//            var response = productRepository.findById(item.getProductId());
-//            response.ifPresent(productEntity -> total.addAndGet(productEntity.getPrice() * item.getQuantity()));
-//        });
-//
-//        System.out.println(request);
-//        return new OrderResponse(total.get());
-//    }
+    @PostMapping("/request")
+    @ResponseStatus(HttpStatus.CREATED) // response code for success
+    public APIResponseDecorator<String> orderRequest(@RequestBody OrderRequest request) {
+        try {
+            return new APIResponseDecorator<String>().onSuccess(orderRequestService.processRequestOrThrow(request));
+
+        }
+        catch (Exception e){
+            return new APIResponseDecorator<String>().withException(e, "failed to purchase", "PurchaseController::orderConfirm");
+        }
+    }
 
     @PostMapping("/confirm")
     @ResponseStatus(HttpStatus.CREATED) // response code for success
-    public APIResponseDecorator<String> orderConfirm(@RequestBody OrderRequest request) {
+    public APIResponseDecorator<List<String>> orderConfirm(@RequestBody OrderRequest request) {
         try {
-            productOrderService.orderConfirmOrThrow(request);
-            return new APIResponseDecorator<String>().onSuccess("Successfully purchases");
+            return new APIResponseDecorator<List<String>>().onSuccess(orderConfirmService.confirmOrThrow(request));
         } catch (Exception e) {
-            return new APIResponseDecorator<String>().withException(e,"failed to purchase","PurchaseController::orderConfirm");
+            return new APIResponseDecorator<List<String>>().withException(e, "failed to purchase", "PurchaseController::orderConfirm");
         }
     }
 
@@ -64,7 +64,7 @@ public class PurchaseController {
             return new APIResponseDecorator<List<PurchasedProductResponse>>()
                     .onSuccess(purchasedHistoryService.getPurchasedProductOrThrow(userId));
         } catch (Exception e) {
-            return new APIResponseDecorator<List<PurchasedProductResponse>>().withException(e,"failed","PurchaseController::getProduct");
+            return new APIResponseDecorator<List<PurchasedProductResponse>>().withException(e, "failed", "PurchaseController::getProduct");
         }
     }
 }

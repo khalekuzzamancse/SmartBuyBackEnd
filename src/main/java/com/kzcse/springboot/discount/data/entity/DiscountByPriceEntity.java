@@ -10,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 @Entity
-@Table(name = "discount_by_price") //otherwise causes error to create database
+@Table(name = "discount_by_price_table") //otherwise causes error to create database
 public class DiscountByPriceEntity {
     @Id
     private String productId;

@@ -61,8 +61,8 @@ public class ProductOrderService {
 
                 var discount = discountByProductRepository.findById(takenDiscountId).orElse(null);
                 if (discount != null) {
-                    var childId = discount.getChildId();
-                    var quantity = discount.getFreeChildQuantity();
+                    var childId = discount.getBonusProductId();
+                    var quantity = discount.getBonusQuantity();
                     subtractProductQuantityFromDBOrThrow(childId, quantity);
                 }
             }

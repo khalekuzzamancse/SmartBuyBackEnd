@@ -14,7 +14,7 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-@Table(name = "User")
+@Table(name = "UserTable")
 @Entity
 public class UserEntity {
     @Id

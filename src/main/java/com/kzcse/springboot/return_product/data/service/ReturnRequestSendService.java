@@ -25,8 +25,8 @@ public class ReturnRequestSendService {
     }
 
     public ProductReturnResponseModel createReturnRequestOrThrow(@RequestBody ReturnRequest request) throws Exception {
-        var purchasedProduct = getPurchasedHistoryOrThrow(request.getPurchaseId());
 
+        var purchasedProduct = getPurchasedHistoryOrThrow(request.getPurchaseId());
         var productId = purchasedProduct.getProductId();
 
         var mainProductPurchasedQuantity = purchasedProduct.getQuantity(); //Amount of main product that was purchased
@@ -38,14 +38,20 @@ public class ReturnRequestSendService {
         var wasDiscount = (discountId != null);
         if (wasDiscount) {
             return onPurchaseHadDiscountOrThrow(purchasedProduct, productId, discountId, request);
-        } else {
+        }
+        else{
             return onProductHadNoDiscountOrThrow(request, productId);
         }
+
+
+
 
     }
 
     private ProductReturnResponseModel onProductHadNoDiscountOrThrow(ReturnRequest request, String productId) throws Exception {
+
         saveToDBOrThrow(request.getPurchaseId(), productId, null, request.getReturnQuantity(), 0);
+
         return new ProductReturnResponseModel("You have to return " + request.getReturnQuantity() + " product(s)");
     }
 
@@ -59,17 +65,19 @@ public class ReturnRequestSendService {
         var discount = getDiscountEntityOrThrow(discountId);
 
 
-        var noMoreEligibleForDiscount = itemAfterReturn < discount.getRequiredParentQuantity();
+        var noMoreEligibleForDiscount = itemAfterReturn < discount.getMinQuantityForBonus();
 
         //TODO:If it eligible for discount then what???
         if (noMoreEligibleForDiscount) {
-            var offeredProductAmount = discount.getFreeChildQuantity();
-            var offeredProductId = discount.getChildId();
+            var offeredProductAmount = discount.getBonusQuantity();
+            var offeredProductId = discount.getBonusProductId();
             saveToDBOrThrow(request.getPurchaseId(), productId, offeredProductId, request.getReturnQuantity(), offeredProductAmount);
             return new ProductReturnResponseModel(
                     "You have to return " + request.getReturnQuantity() + "+" + offeredProductAmount + "(free) product(s) "
             );
         } else {
+            //does not need to return the bonus so it id=null,and amount=0
+            saveToDBOrThrow(request.getPurchaseId(), productId, null, request.getReturnQuantity(), 0);
             return new ProductReturnResponseModel(
                     "You have to return " + request.getReturnQuantity() + " product(s) ");
         }
@@ -80,11 +88,11 @@ public class ReturnRequestSendService {
     private void saveToDBOrThrow(
             String purchasedId,
             String productId,
-            String offeredProductId,
+            String bonusProductId,
             int returningAmount,
-            int offeredProductAmount
+            int bonusProductReturnAmount
     ) throws Exception {
-        var entity = new PendingReturnProduct(purchasedId, productId, offeredProductId, returningAmount, offeredProductAmount);
+        var entity = new PendingReturnProduct(purchasedId, productId, bonusProductId, returningAmount, bonusProductReturnAmount);
         var res = returnProductRepository.save(entity);
 
         //TODO:make sure ReturningPendingEntity has override the equal and hashcode
@@ -121,13 +129,13 @@ public class ReturnRequestSendService {
         if (returnAmount <= 0) {
             throw new ErrorMessage()
                     .setMessage("Failed,invalid return amount")
-                    .setCauses("Return amount="+returnAmount+" ;minimum allowed amount=1")
+                    .setCauses("Return amount=" + returnAmount + " ;minimum allowed amount=1")
                     .setSource(this.getClass().getSimpleName() + "::throwIfInvalidReturnAmount")
                     .toException();
         } else if (returnAmount > purchasedAmount) {
             throw new ErrorMessage()
                     .setMessage("Failed,invalid return amount")
-                    .setCauses("Return amount="+returnAmount+" ;but purchased amount= "+purchasedAmount)
+                    .setCauses("Return amount=" + returnAmount + " ;but purchased amount= " + purchasedAmount)
                     .setSource(this.getClass().getSimpleName() + "::throwIfInvalidReturnAmount")
                     .toException();
         }

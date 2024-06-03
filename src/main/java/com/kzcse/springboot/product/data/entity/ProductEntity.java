@@ -2,6 +2,7 @@ package com.kzcse.springboot.product.data.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.*;
 
 
@@ -11,6 +12,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table(name = "ProductTable")
 public class ProductEntity {
     // Getter and Setter methods
     @Id

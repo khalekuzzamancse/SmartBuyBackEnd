@@ -13,7 +13,7 @@ import lombok.*;
 @ToString
 @Entity
 @EqualsAndHashCode
-@Table(name = "PendingReturnProduct")
+@Table(name = "PendingReturnProductTable")
 public class PendingReturnProduct {
         @Id String id;
         String purchasedProductId;

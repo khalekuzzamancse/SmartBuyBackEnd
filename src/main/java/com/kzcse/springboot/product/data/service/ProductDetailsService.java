@@ -70,14 +70,14 @@ public class ProductDetailsService {
         if (offeredProductResponse != null) {
             var offered = offeredProductResponse.stream().map(
                     offer -> {
-                        var offeredProductDetailsResponse = productRepository.findById(offer.getChildId());
+                        var offeredProductDetailsResponse = productRepository.findById(offer.getBonusProductId());
                         if (offeredProductDetailsResponse.isPresent()) {
                             var offeredProduct = offeredProductDetailsResponse.get();
                             return new ProductOfferResponse(
                                     offeredProduct.getName(),
                                     offeredProduct.getImageLink(),
-                                    offer.getRequiredParentQuantity(),
-                                    offer.getFreeChildQuantity(),
+                                    offer.getMinQuantityForBonus(),
+                                    offer.getBonusQuantity(),
                                     offer.getExpirationTimeInMs()
                             );
                         } else

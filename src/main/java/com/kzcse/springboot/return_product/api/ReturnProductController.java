@@ -40,6 +40,7 @@ public class ReturnProductController {
         try {
             return new APIResponseDecorator<String>().onSuccess(returnRequestSendService.createReturnRequestOrThrow(request).getMessage());
         } catch (Exception e) {
+            e.printStackTrace();
             return new APIResponseDecorator<String>().withException(e, "Request failed", this.getClass().getSimpleName());
         }
 

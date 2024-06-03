@@ -1,6 +1,7 @@
 package com.kzcse.springboot.discount.api;
 
 import com.kzcse.springboot.common.APIResponseDecorator;
+import com.kzcse.springboot.discount.data.entity.DiscountByProductEntity;
 import com.kzcse.springboot.discount.data.service.DiscountByPriceService;
 import com.kzcse.springboot.discount.data.service.DiscountByProductService;
 import com.kzcse.springboot.discount.domain.DiscountByPriceRequestModel;
@@ -18,6 +19,7 @@ public class DiscountController {
     private final DiscountByPriceService discountByPriceService;
     private final DiscountByProductService discountByProductService;
 
+
     public DiscountController(DiscountByPriceService discountByPriceService, DiscountByProductService discountByProductService) {
         this.discountByPriceService = discountByPriceService;
         this.discountByProductService = discountByProductService;
@@ -29,6 +31,18 @@ public class DiscountController {
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
     }
 
+    @GetMapping("all/by-product")
+    @ResponseStatus(HttpStatus.CREATED) // response code for success
+    public APIResponseDecorator<List<DiscountByProductEntity>> allDiscountByProduct() {
+        try {
+
+            return new APIResponseDecorator<List<DiscountByProductEntity>>().onSuccess(discountByProductService.getAllDiscount());
+        } catch (Exception e) {
+            return new APIResponseDecorator<List<DiscountByProductEntity>>().withException(e, "failed to read", this.getClass().getSimpleName()+"::addDiscountByProduct");
+
+        }
+
+    }
     @PostMapping("add/by-product")
     @ResponseStatus(HttpStatus.CREATED) // response code for success
     public APIResponseDecorator<String> addDiscountByProduct(@RequestBody List<DiscountByProductRequestModel> discounts) {
@@ -36,7 +50,7 @@ public class DiscountController {
             discountByProductService.addDiscountOrThrow(discounts);
             return new APIResponseDecorator<String>().onSuccess("Success");
         } catch (Exception e) {
-            return new APIResponseDecorator<String>().withException(e, "failed to add", "DiscountController::addDiscountByProduct");
+            return new APIResponseDecorator<String>().withException(e, "failed to add", this.getClass().getSimpleName()+"::addDiscountByProduct");
 
         }
 

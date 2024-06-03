@@ -14,11 +14,11 @@ public interface DiscountByProductRepository extends CrudRepository<DiscountByPr
      *   <li>Details contain product basic info,offer by price,offer by product,reviews</li>
      * </ul>
      */
-    @Query("SELECT d.id FROM DiscountByProductEntity d WHERE d.parentId = ?1 AND ?2 >= d.requiredParentQuantity")
+    @Query("SELECT d.id FROM DiscountByProductEntity d WHERE d.mainProductId = ?1 AND ?2 >= d.minQuantityForBonus")
     List<String> findDiscountProductId(String parentId, int purchaseQuantity);
 
     // Custom JPQL query to retrieve all discounts for a given parentId
-    @Query("SELECT d FROM DiscountByProductEntity d WHERE d.parentId = :parentId")
+    @Query("SELECT d FROM DiscountByProductEntity d WHERE d.mainProductId = :parentId")
     List<DiscountByProductEntity> findOfferedProduct(String parentId);
 
 }

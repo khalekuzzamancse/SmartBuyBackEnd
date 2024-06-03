@@ -2,6 +2,7 @@ package com.kzcse.springboot.inventory.data;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.*;
 
 @Getter
@@ -10,6 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table(name = "InventoryTable")
 public class InventoryEntity {
     @Id
     private String pid;

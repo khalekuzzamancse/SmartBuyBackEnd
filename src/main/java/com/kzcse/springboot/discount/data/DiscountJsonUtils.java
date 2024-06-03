@@ -75,11 +75,11 @@ public class DiscountJsonUtils {
 
     private DiscountByProductEntity toModelByProduct(DiscountByProductRequestModel model) {
         return new DiscountByProductEntity(
-                model.getParentId() + model.getChildId(),
-                model.getParentId(),
-                model.getChildId(),
-                model.getRequiredParentQuantity(),
-                model.getFreeChildQuantity(),
+                model.getMainProductId() + model.getBonusProductId(),
+                model.getMainProductId(),
+                model.getBonusProductId(),
+                model.getMinQuantityForBonus(),
+                model.getBonusQuantity(),
                 getExpireTimeMs(5)
         );
     }

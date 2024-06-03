@@ -1,6 +1,5 @@
 package com.kzcse.springboot.discount.data.service;
 
-import com.kzcse.springboot.common.APIResponseDecorator;
 import com.kzcse.springboot.common.ErrorMessage;
 import com.kzcse.springboot.discount.data.entity.DiscountByProductEntity;
 import com.kzcse.springboot.discount.data.repository.DiscountByProductRepository;
@@ -10,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.StreamSupport;
 
 @Service
 public class DiscountByProductService {
@@ -21,27 +21,41 @@ public class DiscountByProductService {
         this.productRepository = productRepository;
     }
 
+
     public void addDiscountOrThrow(List<DiscountByProductRequestModel> requestModels) throws Exception {
         checkProductDoesExitOrThrow(requestModels);
 
         var entities = requestModels.stream().map(this::toEntity).toList();
+        //TODO:check saved or not
         repository.saveAll(entities);
     }
 
+    public List<DiscountByProductEntity> getAllDiscount() throws Exception {
+        return StreamSupport
+                .stream(repository
+                        .findAll()
+                        .spliterator(), false
+                )
+                .toList();
+    }
+
+
     private DiscountByProductEntity toEntity(DiscountByProductRequestModel model) {
+        var id = model.getMainProductId() +"-"+ model.getBonusProductId()+"-"+model.getMinQuantityForBonus()+"-"+model.getBonusQuantity();
         return new DiscountByProductEntity(
-                model.getParentId() + model.getChildId(),
-                model.getParentId(),
-                model.getChildId(),
-                model.getRequiredParentQuantity(),
-                model.getFreeChildQuantity(),
+                id,
+                model.getMainProductId(),
+                model.getBonusProductId(),
+                model.getMinQuantityForBonus(),
+                model.getBonusQuantity(),
                 getExpireTimeMs(5)
         );
     }
 
+
     private void checkProductDoesExitOrThrow(List<DiscountByProductRequestModel> entities) throws Exception {
         for (DiscountByProductRequestModel requestModel : entities) {
-            var parentId = requestModel.getParentId();
+            var parentId = requestModel.getMainProductId();
             var doesNotExist = !(productRepository.existsById(parentId));
             if (doesNotExist) {
                 throw new ErrorMessage()
@@ -50,7 +64,7 @@ public class DiscountByProductService {
                         .setSource("DiscountByProductService::checkProductDoesExitOrThrow")
                         .toException();
             }
-            var childId = requestModel.getChildId();
+            var childId = requestModel.getBonusProductId();
             doesNotExist = !(productRepository.existsById(childId));
             if (doesNotExist) {
                 throw new ErrorMessage()

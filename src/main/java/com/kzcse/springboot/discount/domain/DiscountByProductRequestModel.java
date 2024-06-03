@@ -8,10 +8,10 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 public class DiscountByProductRequestModel {
-    private String parentId;
-    private String childId;
-    private int requiredParentQuantity;
-    private int freeChildQuantity;
+    private String mainProductId;
+    private String bonusProductId;
+    private int minQuantityForBonus;
+    private int bonusQuantity;
     private Long expirationTimeInMs;
 
 }

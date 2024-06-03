@@ -2,6 +2,7 @@ package com.kzcse.springboot.purchase.data.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -13,6 +14,7 @@ import java.time.LocalDate;
 @ToString
 @EqualsAndHashCode
 @Entity
+@Table(name = "PurchasedProductTable")
 public class PurchasedProductEntity {
     @Id
     private String id;

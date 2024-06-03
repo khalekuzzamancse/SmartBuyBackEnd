@@ -3,6 +3,7 @@ package com.kzcse.springboot.purchase.data.service;
 import com.kzcse.springboot.auth.data.service.UserService;
 import com.kzcse.springboot.auth.domain.AuthFactory;
 import com.kzcse.springboot.common.ErrorMessage;
+import com.kzcse.springboot.discount.data.entity.DiscountByProductEntity;
 import com.kzcse.springboot.discount.data.repository.DiscountByProductRepository;
 import com.kzcse.springboot.inventory.data.InventoryRepository;
 import com.kzcse.springboot.inventory.domain.InventoryFactory;
@@ -48,48 +49,56 @@ public class ProductOrderConfirmService {
         Set<String> message = new java.util.HashSet<>(Collections.emptySet());
 
 
-        for (var item : request.getItems()) {
-            var purchaseId = item.getProductId() + request.getUserId();
-            var discountIds = discountByProductRepository.findDiscountProductId(item.getProductId(), item.getQuantity());
-            var purchasingAmount = item.getQuantity();
+        for (var product : request.getItems()) {
+            var purchaseId = product.getProductId() + request.getUserId();
+            var productId=product.getProductId();
+            var discountIds = discountByProductRepository.findDiscountProductId(product.getProductId(), product.getQuantity());
+            var purchasingAmount = product.getQuantity();
             String takenDiscountId = null;
             if (!discountIds.isEmpty()) {
                 takenDiscountId = discountIds.get(discountIds.size() - 1); //taken the last once
             }
-            var expireDate = LocalDate.now();
-            var entity = new PurchasedProductEntity(purchaseId, request.getUserId(), item.getProductId(), item.getQuantity(), takenDiscountId, expireDate);
 
-            var response = purchasedProductRepository.save(entity);
-            var isSuccess = (entity.equals(response));
-            if (!isSuccess) {
-                throw new ErrorMessage()
-                        .setMessage("Failed; Product" + item.getProductId() + " has not been purchased")
-                        .setCauses("Failed to save database")
-                        .setSource("ProductOrderService::orderConfirmOrThrow")
-                        .toException();
-            }
 
-            subtractProductQuantityFromDBOrThrow(item.getProductId(), item.getQuantity());
 
-            var discountWasGiven = (takenDiscountId != null);
+            var eligibleForDiscount = (takenDiscountId != null);
 
-            if (discountWasGiven) {
-
+            if (eligibleForDiscount) {
                 var discount = discountByProductRepository.findById(takenDiscountId).orElse(null);
                 if (discount != null) {
-                    var childId = discount.getBonusProductId();
-                    var bonusQuantity = discount.getBonusOnThreshold();
-                    subtractProductQuantityFromDBOrThrow(childId, bonusQuantity);
-                    message.add(String.format("You have successfully purchased product=%s of quantity=%d and got bonus=%d", item.getProductId(), purchasingAmount, bonusQuantity));
+                    var bonusProductId = discount.getBonusProductId();
+                    var bonusQuantity = calculateBonusQuantity(purchasingAmount,discount);
+                    //TODO:It is better to save database after all valid check
+                    throwIfInvalidQuantity(bonusProductId,bonusQuantity);
+
+                    subtractProductQuantityFromDBOrThrow(bonusProductId, bonusQuantity);
+                    message.add(String.format("You have successfully purchased product=%s of quantity=%d and got bonus=%d", product.getProductId(), purchasingAmount, bonusQuantity));
 
                 }
             } else {
-                message.add(String.format("You have successfully purchased product=%s of quantity=%d", item.getProductId(), purchasingAmount));
+                message.add(String.format("You have successfully purchased product=%s of quantity=%d", product.getProductId(), purchasingAmount));
 
             }
 
+            //TODO:If eligible for offer,then update database for  offer or throw ,then update product,otherwise will cause inconsistent
+            subtractProductQuantityFromDBOrThrow(productId, purchasingAmount);
+            //Save the history
+            var entity = new PurchasedProductEntity(purchaseId, request.getUserId(),productId, purchasingAmount, takenDiscountId,  LocalDate.now());
+            savePurchaseHistoryOrThrow(entity);
         }
+
         return message.stream().toList();
+    }
+    private void savePurchaseHistoryOrThrow(PurchasedProductEntity entity) throws Exception{
+        var response = purchasedProductRepository.save(entity);
+        var isSuccess = (entity.equals(response));
+        if (!isSuccess) {
+            throw new ErrorMessage()
+                    .setMessage("Failed; Product" + entity.getProductId() + " has not been purchased")
+                    .setCauses("Failed to save database")
+                    .setSource(this.getClass().getSimpleName()+"::orderConfirmOrThrow")
+                    .toException();
+        }
     }
 
 
@@ -105,11 +114,16 @@ public class ProductOrderConfirmService {
     }
 
     private void throwIfInvalidQuantity(String productId, int desiredPurchaseAmount) throws Exception {
-        inventoryFactory.createValidator().validateOrThrow(productId,desiredPurchaseAmount);
+        inventoryFactory.createValidator().validateOrThrow(productId, desiredPurchaseAmount);
 
     }
 
-    private int calculateDiscountAsLinear(int purchased, int minRequired, int bonusOnMin) {
+    private int calculateBonusQuantity(int purchased, DiscountByProductEntity discount) {
+        var minRequired = discount.getBonusEligibilityThreshold();
+        var bonusOnMin = discount.getBonusOnThreshold();
+        if (discount.isConstant())
+            return bonusOnMin;
+
         // Calculate the bonus per unit
         double bonusPerUnit = (double) bonusOnMin / minRequired;
         // Calculate the total bonus for the purchased quantity

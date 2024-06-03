@@ -13,5 +13,6 @@ public class DiscountByProductRequestModel {
     private int bonusEligibilityThreshold;
     private int bonusOnThreshold;
     private Long expirationTimeInMs;
+    private boolean isConstant;
 
 }

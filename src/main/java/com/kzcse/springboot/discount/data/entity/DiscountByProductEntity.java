@@ -20,5 +20,6 @@ public class DiscountByProductEntity {
     private int bonusEligibilityThreshold;
     private int bonusOnThreshold;
     private Long expirationTimeInMs;
+    private boolean isConstant; //when not constant ,then discount : if for y discount x then for n*y ,discount=n*x
 
 }

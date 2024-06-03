@@ -10,7 +10,7 @@ import lombok.*;
 @ToString
 public class ReturningPendingProductModel {
         String purchaseId;
-        String promotionalProductId;
-        int quantityToReturn;//amount that wants to back/return
-        int promotionalProductQuantityToReturn; //free product that will be back along with main product
+        String bonusProductId;
+        int mainReturnQuantity;//amount that wants to back/return
+        int bonusReturnQuantity; //free product that will be back along with main product
 }

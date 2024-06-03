@@ -48,7 +48,8 @@ public class DiscountByProductService {
                 model.getBonusProductId(),
                 model.getBonusEligibilityThreshold(),
                 model.getBonusOnThreshold(),
-                getExpireTimeMs(5)
+                getExpireTimeMs(5),
+                model.isConstant()
         );
     }
 

@@ -61,34 +61,44 @@ public class ReturnRequestSendService {
     ) throws Exception {
         var wasPurchased = purchasedProduct.getQuantity();
         var wantsReturn = request.getReturnQuantity();
-        var itemAfterReturn = purchasedProduct.getQuantity() - wantsReturn;
+        var itemAfterReturn = wasPurchased - wantsReturn;
         var discount = getDiscountEntityOrThrow(discountId);
 
-        var bonusEligibilityThreshold = discount.getBonusEligibilityThreshold();
-   //     var bonusOnThreshold = discount.getBonusQuantity();
+    //    var bonusEligibilityThreshold = discount.getBonusEligibilityThreshold();
+        //     var bonusOnThreshold = discount.getBonusQuantity();
 
-        var noMoreEligibleForDiscount = itemAfterReturn < bonusEligibilityThreshold;
+//        var noMoreEligibleForDiscount = itemAfterReturn < bonusEligibilityThreshold;
+//
+//        //TODO:If it eligible for discount then what???
+//        if (noMoreEligibleForDiscount) {
+        var bonusWasGiven = calculateBonusQuantity(wasPurchased, discount);
+        var bonusAfterReturn = calculateBonusQuantity(itemAfterReturn, discount);
+        var bonusNeedToReturn = bonusWasGiven - bonusAfterReturn;
 
-        //TODO:If it eligible for discount then what???
-        if (noMoreEligibleForDiscount) {
-            var bonusAmount = discount.getBonusOnThreshold();//constant,if linear use the calculateDiscountAsLinear
-            //   bonusAmount = calculateDiscountAsLinear(wasPurchased,bonusEligibilityThreshold ,bonusOnThreshold);
-            var offeredProductId = discount.getBonusProductId();
-            saveToDBOrThrow(request.getPurchaseId(), productId, offeredProductId, request.getReturnQuantity(), bonusAmount);
-            return new ProductReturnResponseModel(
-                    "You have to return " + request.getReturnQuantity() + "+" + bonusAmount + "(free) product(s) "
-            );
-        } else {
-            //does not need to return the bonus so it id=null,and amount=0
-            saveToDBOrThrow(request.getPurchaseId(), productId, null, request.getReturnQuantity(), 0);
-            return new ProductReturnResponseModel(
-                    "You have to return " + request.getReturnQuantity() + " product(s) ");
-        }
+
+        var offeredProductId = discount.getBonusProductId();
+        saveToDBOrThrow(request.getPurchaseId(), productId, offeredProductId, wantsReturn, bonusNeedToReturn);
+        return new ProductReturnResponseModel(
+                "You have to return " + request.getReturnQuantity() + "+" + bonusNeedToReturn + "(free) product(s) "
+        );
+        //}
+//        else {
+//            //does not need to return the bonus so it id=null,and amount=0
+//            saveToDBOrThrow(request.getPurchaseId(), productId, null, request.getReturnQuantity(), 0);
+//            return new ProductReturnResponseModel(
+//                    "You have to return " + request.getReturnQuantity() + " product(s) ");
+//        }
 
 
     }
 
-    private int calculateDiscountAsLinear(int purchased, int minRequired, int bonusOnMin) {
+    private int calculateBonusQuantity(int purchased, DiscountByProductEntity discount) {
+
+        var minRequired = discount.getBonusEligibilityThreshold();
+        var bonusOnMin = discount.getBonusOnThreshold();
+        if (discount.isConstant())
+            return bonusOnMin;
+
         // Calculate the bonus per unit
         double bonusPerUnit = (double) bonusOnMin / minRequired;
         // Calculate the total bonus for the purchased quantity

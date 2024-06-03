@@ -41,13 +41,13 @@ public class DiscountByProductService {
 
 
     private DiscountByProductEntity toEntity(DiscountByProductRequestModel model) {
-        var id = model.getMainProductId() +"-"+ model.getBonusProductId()+"-"+model.getMinQuantityForBonus()+"-"+model.getBonusQuantity();
+        var id = model.getMainProductId() +"-"+ model.getBonusProductId()+"-"+model.getBonusEligibilityThreshold()+"-"+model.getBonusOnThreshold();
         return new DiscountByProductEntity(
                 id,
                 model.getMainProductId(),
                 model.getBonusProductId(),
-                model.getMinQuantityForBonus(),
-                model.getBonusQuantity(),
+                model.getBonusEligibilityThreshold(),
+                model.getBonusOnThreshold(),
                 getExpireTimeMs(5)
         );
     }

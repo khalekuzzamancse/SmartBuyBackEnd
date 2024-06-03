@@ -76,8 +76,8 @@ public class ProductDetailsService {
                             return new ProductOfferResponse(
                                     offeredProduct.getName(),
                                     offeredProduct.getImageLink(),
-                                    offer.getMinQuantityForBonus(),
-                                    offer.getBonusQuantity(),
+                                    offer.getBonusEligibilityThreshold(),
+                                    offer.getBonusOnThreshold(),
                                     offer.getExpirationTimeInMs()
                             );
                         } else

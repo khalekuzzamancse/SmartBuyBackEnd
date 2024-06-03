@@ -57,17 +57,27 @@ public class ProductOrderService {
             }
 
             subtractProductQuantityFromDBOrThrow(item.getProductId(), item.getQuantity());
-            if (takenDiscountId != null) {
+
+            var discountWasGiven=(takenDiscountId != null);
+
+            if (discountWasGiven) {
 
                 var discount = discountByProductRepository.findById(takenDiscountId).orElse(null);
                 if (discount != null) {
                     var childId = discount.getBonusProductId();
-                    var quantity = discount.getBonusQuantity();
-                    subtractProductQuantityFromDBOrThrow(childId, quantity);
+                    var bonusQuantity = discount.getBonusOnThreshold();
+                    subtractProductQuantityFromDBOrThrow(childId, bonusQuantity);
                 }
             }
 
         }
+    }
+
+    private int calculateDiscountAsLinear(int purchased,int minRequired,int bonusOnMin){
+        // Calculate the bonus per unit
+        double bonusPerUnit = (double) bonusOnMin / minRequired;
+        // Calculate the total bonus for the purchased quantity
+        return (int) (bonusPerUnit * purchased);
     }
 
     private void throwIfUserDoesNotExit(String userId) throws Exception {

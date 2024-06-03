@@ -47,6 +47,7 @@ public class DiscountController {
     @ResponseStatus(HttpStatus.CREATED) // response code for success
     public APIResponseDecorator<String> addDiscountByProduct(@RequestBody List<DiscountByProductRequestModel> discounts) {
         try {
+            System.out.println(discounts);
             discountByProductService.addDiscountOrThrow(discounts);
             return new APIResponseDecorator<String>().onSuccess("Success");
         } catch (Exception e) {

@@ -78,8 +78,8 @@ public class DiscountJsonUtils {
                 model.getMainProductId() + model.getBonusProductId(),
                 model.getMainProductId(),
                 model.getBonusProductId(),
-                model.getMinQuantityForBonus(),
-                model.getBonusQuantity(),
+                model.getBonusEligibilityThreshold(),
+                model.getBonusOnThreshold(),
                 getExpireTimeMs(5)
         );
     }

@@ -10,8 +10,8 @@ import lombok.*;
 public class DiscountByProductRequestModel {
     private String mainProductId;
     private String bonusProductId;
-    private int minQuantityForBonus;
-    private int bonusQuantity;
+    private int bonusEligibilityThreshold;
+    private int bonusOnThreshold;
     private Long expirationTimeInMs;
 
 }
